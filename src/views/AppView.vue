@@ -39,7 +39,7 @@ body {
 .app-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; 
+  min-height:calc(100vh-90px); 
 }
 
 .header {
@@ -47,6 +47,7 @@ body {
   color: #fff;
   padding: 10px 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  height: 50px;
 }
 
 .nav-container {
@@ -73,14 +74,13 @@ body {
 /* Stylizacja obrazka */
 .main-content {
   background-image: url('D:\Studia\praca inżynierska\aplikacja\aplikacja\src\assets\images\money.jpg');
-  position: absolute;
   width: 100%;
-  height: 100%;
+  min-height:calc(100vh-90px); 
   background-size: cover;
   z-index: -1;
   flex: 1;
-  padding: 20px;
   background-color: #ffffff5f;
+
   
 }
 
@@ -90,6 +90,7 @@ body {
   color: #333;
   text-align: center;
   padding: 5px 0;
+  height: 40px;
   width: 100%;
   margin-top: auto;
 }

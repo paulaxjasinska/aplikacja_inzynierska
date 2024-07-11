@@ -38,8 +38,7 @@ const form= ref({kwotax:"", kwotay:""})
   display: flex;
   flex-direction: column;
   color: #000000;
-  padding: 20px;
-  height: 100%;
+  min-height:calc(100vh-90px); 
   box-sizing: border-box;
   backdrop-filter: blur(3px);
 }
