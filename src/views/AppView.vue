@@ -9,7 +9,7 @@ import { RouterLink, RouterView } from 'vue-router'
         <nav class="naglowek">
           <RouterLink to="/" class="nav-link">Strona Główna</RouterLink>
           <RouterLink to="/credit" class="nav-link">Schemat kredytu</RouterLink>
-          <RouterLink to="/restructuring1" class="nav-link">Restrukturyzacja</RouterLink>
+          <RouterLink to="/restructuring" class="nav-link">Restrukturyzacja</RouterLink>
         </nav>
       </div>
     </header>
@@ -39,9 +39,10 @@ body {
 .app-container {
   display: flex;
   flex-direction: column;
-  min-height:calc(100vh-90px); 
+  min-height:calc(100vh - 90px); 
 }
 
+/* Wygląd nagłówka */
 .header {
   background-color: #03cf77;
   color: #fff;
@@ -58,6 +59,7 @@ body {
   display: flex;
 }
 
+/* Wygląd linków w nagłówku */
 .nav-link {
   color: #000000;
   font-size: large;
@@ -75,7 +77,7 @@ body {
 .main-content {
   background-image: url('D:\Studia\praca inżynierska\aplikacja\aplikacja\src\assets\images\money.jpg');
   width: 100%;
-  min-height:calc(100vh-90px); 
+  min-height:calc(100vh - 90px); 
   background-size: cover;
   z-index: -1;
   flex: 1;

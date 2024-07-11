@@ -1,12 +1,5 @@
 <script setup>
-// ref potrzebny do tworzenia zmiennych w których będą liczby 
-import { ref } from 'vue';
-// nazwanie zmiennych
-const form= ref({kwotax:"", kwotay:""})
-// funkcja pokazująca wartość kwoty x
-  function submit(){
-      console.log(form.value.kwotax)
-  }
+
 </script>
 
 
@@ -20,6 +13,7 @@ const form= ref({kwotax:"", kwotay:""})
 </template>
 
 <style scoped>
+/* Wygląd diva */
 .home-view {
   text-align: center;
   justify-content: center;
@@ -29,7 +23,7 @@ const form= ref({kwotax:"", kwotay:""})
   height: 100%;
   display: flex;
 }
-
+/* Wygląd napisu i backgroundu */
 .content-overlay {
   text-align: center;
   justify-content: center;
@@ -38,7 +32,7 @@ const form= ref({kwotax:"", kwotay:""})
   display: flex;
   flex-direction: column;
   color: #000000;
-  min-height:calc(100vh-90px); 
+  min-height:calc(100vh - 90px); 
   box-sizing: border-box;
   backdrop-filter: blur(3px);
 }

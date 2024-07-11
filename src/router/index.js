@@ -15,9 +15,9 @@ const router = createRouter({
       component: () => import('../views/CreditView.vue')
     },
     {
-      path: '/restructuring1',
-      name: 'restructuring1',
-      component: () => import('../views/Restructuring1View.vue')
+      path: '/restructuring',
+      name: 'restructuring',
+      component: () => import('../views/RestructuringView.vue')
     }
 
   ]
