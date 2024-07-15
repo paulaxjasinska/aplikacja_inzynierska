@@ -1,9 +1,8 @@
+<script>
+
+</script>
+
 <template>
-  <div class="credit-view">
-    <h1>Stwórz schemat swojego kredytu</h1>
-    <p>Uzupełnij dany formularz by móc wygenerować schemat.</p>
-    <br>
-    
     <form @submit.prevent="submitForm">
       <div class="form-group">
         <label for="principal">Kwota główna:</label> 
@@ -11,7 +10,12 @@
       </div>
       
       <div class="form-group">
-        <label for="interestRate">Nominalna stopa procentowa (%):</label>
+        <label for="interestRate">Początkowa nominalna stopa procentowa (%):</label>
+        <input type="number" v-model="interestRate" step="0.01" min="0" required />
+      </div>
+
+      <div class="form-group">
+        <label for="interestRate">Zmieniona nominalna stopa procentowa (%):</label>
         <input type="number" v-model="interestRate" step="0.01" min="0" required />
       </div>
 
@@ -40,51 +44,19 @@
         <label for="installments">Liczba lat:</label>
         <input type="number" v-model="installments" min="0" required />
       </div>
-
-      <div class="form-group">
-        <label>Rodzaj spłaty:</label>
-      </div>
-
-      <div class="form-group radio-group">
-        <div class="radio-container">
-          <label>
-            <input type="radio" value="equal" v-model="paymentMethod" checked />
-            równe raty
-          </label>
-          <label>
-            <input type="radio" value="equal_capital" v-model="paymentMethod" />
-            równe części kapitałowe
-          </label>
-        </div>
-      </div>
       
       <button type="submit">Oblicz</button>
     </form>
-  </div>
 </template>
 
-<script setup>
-import { ref } from 'vue';
-const paymentType = ref('annual'); // Domyślnie zaznaczone "roczne"
-const paymentMethod = ref('equal'); // Domyślnie zaznaczone "równe raty"
-
-const submitForm = () => {
-  console.log('Kwota główna:', principal.value);
-  console.log('Roczna stopa procentowa:', interestRate.value);
-  console.log('Rodzaj rat:', paymentType.value);
-  console.log('Ilość rat:', installments.value);
-  console.log('Rodzaj spłaty:', paymentMethod.value);
-  // Tutaj możesz dodać logikę obliczeń lub wysłania formularza
-}
-</script>
-
-<style scoped>
+  <style scoped>
 .credit-view {
   max-width: 600px;
   margin: 0 auto;
   padding: 20px;
   background-color: #f9f9f968;
   border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .credit-view h1 {
@@ -160,4 +132,4 @@ button {
   margin-top: 20px;
 }
 
-</style>
+  </style>

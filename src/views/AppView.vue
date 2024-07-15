@@ -75,11 +75,10 @@ body {
 
 /* Stylizacja obrazka */
 .main-content {
-  background-image: url('D:\Studia\praca inżynierska\aplikacja\aplikacja\src\assets\images\money.jpg');
+  background-image: url('@/assets/images/money.jpg');
   width: 100%;
   min-height:calc(100vh - 90px); 
   background-size: cover;
-  z-index: -1;
   flex: 1;
   background-color: #ffffff5f;
 
