@@ -6,13 +6,13 @@
     
     <form @submit.prevent="submitForm">
       <div class="form-group">
-        <label for="principal">Kwota główna:</label> 
-        <input type="number" v-model="principal" min="0" required />
+        <label for="kwotaglowna">Kwota główna:</label>
+        <input type="number" v-model.number="kwotaglowna" min="0" required />
       </div>
       
       <div class="form-group">
-        <label for="interestRate">Nominalna stopa procentowa (%):</label>
-        <input type="number" v-model="interestRate" step="0.01" min="0" required />
+        <label for="stopa">Nominalna stopa procentowa (%):</label>
+        <input type="number" v-model.number="stopa" step="0.01" min="0" required />
       </div>
 
       <div class="form-group">
@@ -22,23 +22,23 @@
       <div class="form-group radio-group">
         <div class="radio-container">
           <label>
-            <input type="radio" value="annual" v-model="paymentType" checked />
+            <input type="radio" value="roczne" v-model="paymentType" />
             roczne
           </label>
           <label>
-            <input type="radio" value="quarterly" v-model="paymentType" />
+            <input type="radio" value="kwartalne" v-model="paymentType" />
             kwartalne
           </label>
           <label>
-            <input type="radio" value="monthly" v-model="paymentType" />
+            <input type="radio" value="miesieczne" v-model="paymentType" />
             miesięczne
           </label>
         </div>
       </div>
       
       <div class="form-group">
-        <label for="installments">Liczba lat:</label>
-        <input type="number" v-model="installments" min="0" required />
+        <label for="lata">Liczba lat:</label>
+        <input type="number" v-model.number="lata" min="0" required />
       </div>
 
       <div class="form-group">
@@ -48,11 +48,11 @@
       <div class="form-group radio-group">
         <div class="radio-container">
           <label>
-            <input type="radio" value="equal" v-model="paymentMethod" checked />
+            <input type="radio" value="rowner" v-model="paymentMethod" />
             równe raty
           </label>
           <label>
-            <input type="radio" value="equal_capital" v-model="paymentMethod" />
+            <input type="radio" value="rownek" v-model="paymentMethod" />
             równe części kapitałowe
           </label>
         </div>
@@ -64,18 +64,65 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-const paymentType = ref('annual'); // Domyślnie zaznaczone "roczne"
-const paymentMethod = ref('equal'); // Domyślnie zaznaczone "równe raty"
+import { ref, computed } from 'vue';
 
+const paymentType = ref('roczne'); // Domyślnie zaznaczone "roczne"
+const paymentMethod = ref('rowner'); // Domyślnie zaznaczone "równe raty"
+const lata = ref(0);
+const kwotaglowna = ref(0);
+const stopa = ref(0);
+
+// liczymy ilość rat w zależności od rodzaju rat
+const liczbarat = computed(() => {
+  if (paymentType.value === 'kwartalne') {
+    return lata.value * 4;
+  } else if (paymentType.value === 'miesieczne') {
+    return lata.value * 12;
+  }
+  return lata.value;
+});
+
+// liczymy stopy w zależności od rodzaju rat
+const przeliczonaStopa = computed(() => {
+  if (paymentType.value === 'kwartalne') {
+    return (Math.pow(1 + stopa.value / 100, 1 / 4) - 1) * 100;
+  } else if (paymentType.value === 'miesieczne'){
+    return (Math.pow(1 + stopa.value / 100, 1 / 12) - 1)*100
+  }
+  return stopa.value
+  });
+
+// formatujemy stopę procentową do obliczeń
+const formatowanaStopa = computed(() => {
+  return przeliczonaStopa.value.toFixed(2) + '%';
+});
+
+// Obliczenie raty kredytu
+const rata = computed(() => {
+  if (kwotaglowna.value === 0 || formatowanaStopa.value === 0 || lata.value === 0 || liczbarat.value === 0) {
+    return 0;
+  }
+
+  const formatowana = parseFloat(formatowanaStopa.value) / 100; // Konwersja na liczbę zmiennoprzecinkową i przeliczenie na ułamek dziesiętny
+  const nawias = 1 + formatowana;
+  const mianownik = Math.pow(nawias, liczbarat.value);
+  const rata = (kwotaglowna.value * formatowana) /(1 - (1 / mianownik));
+  
+  return rata.toFixed(2); // Zaokrąglenie do dwóch miejsc po przecinku
+});
+
+// Funkcja do obsługi przesyłania formularza
 const submitForm = () => {
-  console.log('Kwota główna:', principal.value);
-  console.log('Roczna stopa procentowa:', interestRate.value);
+  console.log('Kwota główna:', kwotaglowna.value);
+  console.log('Nominalna stopa procentowa:', stopa.value);
+  console.log('Przeliczona stopa:', parseFloat(formatowanaStopa.value).toFixed(2)); // Konwersja na liczbę i zaokrąglenie do dwóch miejsc po przecinku
   console.log('Rodzaj rat:', paymentType.value);
-  console.log('Ilość rat:', installments.value);
+  console.log('Liczba lat:', lata.value);
+  console.log('Liczba rat:', liczbarat.value);
+  console.log('Rata:', rata.value);
   console.log('Rodzaj spłaty:', paymentMethod.value);
-  // Tutaj możesz dodać logikę obliczeń lub wysłania formularza
-}
+};
+
 </script>
 
 <style scoped>
@@ -109,16 +156,6 @@ const submitForm = () => {
   border-radius: 4px;
 }
 
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
 .form-group input[type="number"] {
   width: 100%;
   padding: 8px;
@@ -133,7 +170,7 @@ const submitForm = () => {
 
 .radio-container {
   display: flex;
-  gap: 40px;
+  gap: 20px; /* Zmniejszenie przerwy między przyciskami */
 }
 
 .radio-container label {
@@ -141,6 +178,7 @@ const submitForm = () => {
   align-items: center;
   white-space: nowrap;
   font-weight: normal;
+  margin-left: 5px;
 }
 
 .radio-container input[type="radio"] {
@@ -160,4 +198,7 @@ button {
   margin-top: 20px;
 }
 
+button:hover {
+  background-color: #03aa62;
+}
 </style>
