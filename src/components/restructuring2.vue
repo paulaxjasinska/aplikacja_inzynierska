@@ -51,7 +51,7 @@
 
   <style scoped>
 .credit-view {
-  max-width: 600px;
+  max-width: 650px;
   margin: 0 auto;
   padding: 20px;
   background-color: #f9f9f968;
