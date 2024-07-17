@@ -60,6 +60,29 @@
       
       <button type="submit">Oblicz</button>
     </form>
+
+    <table v-if="raty.length > 0">
+      <thead>
+        <tr>
+          <th>Numer raty</th>
+          <th>Kwota główna</th>
+          <th>Rata</th>
+          <th>Część odsetkowa</th>
+          <th>Część kapitałowa</th>
+          <th>Kwota główna po zapłaceniu raty</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="rata in raty" :key="rata.numer">
+          <td>{{ rata.numer }}</td>
+          <td>{{ rata.kwotaGlowna }}</td>
+          <td>{{ rata.rata }}</td>
+          <td>{{ rata.czescOdsetkowa }}</td>
+          <td>{{ rata.czescKapitalowa }}</td>
+          <td :class="{ 'green-text': rata.ostatni }">{{ rata.kwotaPoSplatach }}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
@@ -111,17 +134,48 @@ const rata = computed(() => {
   return rata.toFixed(2); // Zaokrąglenie do dwóch miejsc po przecinku
 });
 
-// Funkcja do obsługi przesyłania formularza
+// tworzenie schematu spłaty kredytu
+
+const raty = ref([]);
+
 const submitForm = () => {
+  raty.value = [];
+  let pozostalaKwota = parseFloat(kwotaglowna.value);
+
+  for (let i = 1; i <= liczbarat.value; i++) {
+    const czescKapitalowa = paymentMethod.value === 'rownek' 
+      ? parseFloat(kwotaglowna.value / liczbarat.value)
+      : parseFloat(rata.value - parseFloat(pozostalaKwota * (przeliczonaStopa.value / 100)));
+
+    const czescOdsetkowa = parseFloat(pozostalaKwota * (przeliczonaStopa.value / 100));
+    const kwotaPoSplatach = parseFloat(pozostalaKwota - czescKapitalowa);
+    const rataWyliczona = paymentMethod.value === 'rownek'
+      ? (czescKapitalowa + czescOdsetkowa).toFixed(2)
+      : parseFloat(rata.value).toFixed(2);
+
+    raty.value.push({
+      numer: i,
+      kwotaGlowna: pozostalaKwota.toFixed(2),
+      rata: rataWyliczona,
+      czescOdsetkowa: czescOdsetkowa.toFixed(2),
+      czescKapitalowa: czescKapitalowa.toFixed(2),
+      kwotaPoSplatach: i === liczbarat.value ? '0.00' : kwotaPoSplatach.toFixed(2),
+      ostatni: i === liczbarat.value
+    });
+
+    pozostalaKwota = kwotaPoSplatach;
+  }
+
   console.log('Kwota główna:', kwotaglowna.value);
   console.log('Nominalna stopa procentowa:', stopa.value);
-  console.log('Przeliczona stopa:', parseFloat(formatowanaStopa.value).toFixed(2)); // Konwersja na liczbę i zaokrąglenie do dwóch miejsc po przecinku
+  console.log('Przeliczona stopa:', przeliczonaStopa.value.toFixed(2));
   console.log('Rodzaj rat:', paymentType.value);
   console.log('Liczba lat:', lata.value);
   console.log('Liczba rat:', liczbarat.value);
   console.log('Rata:', rata.value);
   console.log('Rodzaj spłaty:', paymentMethod.value);
 };
+
 
 </script>
 
@@ -201,4 +255,27 @@ button {
 button:hover {
   background-color: #03aa62;
 }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #ffffff;
+  }
+
+  th, td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+  }
+
+  th {
+    font-weight: bold;
+  }
+
+  .green-text {
+    color: rgb(0, 119, 0);
+    font-weight: bold;
+  }
+
 </style>
