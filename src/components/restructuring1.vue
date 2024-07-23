@@ -1,7 +1,3 @@
-<script>
-
-</script>
-
 <template>
     <form @submit.prevent="submitForm">
       <div class="form-group">
@@ -44,10 +40,38 @@
         <label for="installments">Liczba lat:</label>
         <input type="number" v-model="installments" min="0" required />
       </div>
+
+      <div class="form-group">
+        <label>Rodzaj spłaty:</label>
+      </div>
+
+      <div class="form-group radio-group">
+        <div class="radio-container">
+          <label>
+            <input type="radio" value="rowneraty" v-model="paymentMethod" />
+            równe raty
+          </label>
+          <label>
+            <input type="radio" value="rownek" v-model="paymentMethod" />
+            równe części kapitałowe
+          </label>
+        </div>
+      </div>
       
       <button type="submit">Oblicz</button>
     </form>
 </template>
+
+<script>
+
+import { ref, computed } from 'vue';
+
+const paymentType = ref('roczne'); // Domyślnie zaznaczone "roczne"
+const paymentMethod = ref('rowneraty'); // Domyślnie zaznaczone "równe raty"
+const lata = ref(0);
+const kwotaglowna = ref(0);
+const stopa = ref(0);
+</script>
 
   <style scoped>
 .credit-view {
