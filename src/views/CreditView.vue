@@ -83,7 +83,7 @@
         </tr>
       </tbody>
     </table>
-    <CustomChart :chartData></CustomChart>
+    <CustomChart :chartData v-if="raty.length > 0"></CustomChart>
   </div>
 </template>
 
@@ -168,19 +168,6 @@ const submitForm = () => {
     pozostalaKwota = kwotaPoSplatach;
   }
 
-  const chartData=computed(()=>{
-    return {
-    labels:raty.value.map((item)=>`Rata: ${item.numer}`),
-    datasets:[
-      {
-        label: 'Rata',
-            backgroundColor: '#f87979',
-            data: raty.value.map((item)=>item.rata),
-      }
-    ]
-  }
-  })
-
   console.log('Kwota główna:', kwotaglowna.value);
   console.log('Nominalna stopa procentowa:', stopa.value);
   console.log('Przeliczona stopa:', przeliczonaStopa.value.toFixed(2));
@@ -191,6 +178,28 @@ const submitForm = () => {
   console.log('Rodzaj spłaty:', paymentMethod.value);
 };
 
+const chartData=computed(()=>{
+    return {
+    labels:raty.value.map((item)=>`Rata: ${item.numer}`),
+    datasets:[
+      {
+        label: 'Rata',
+            backgroundColor: '#f87979',
+            data: raty.value.map((item)=>item.rata),
+      },
+      {
+        label: 'Część odsetkowa',
+            backgroundColor: '#03cf77',
+            data: raty.value.map((item)=>item.czescOdsetkowa),
+      },
+      {
+        label: 'Część kapitałowa',
+            backgroundColor: '#03cf77',
+            data: raty.value.map((item)=>item.czescKapitalowa),
+      },
+    ]
+  }
+  })
 
 </script>
 
