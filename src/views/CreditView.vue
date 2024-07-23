@@ -83,11 +83,13 @@
         </tr>
       </tbody>
     </table>
+    <CustomChart :chartData></CustomChart>
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
+import CustomChart from '@/components/CustomChart.vue';
 
 const paymentType = ref('roczne'); // Domyślnie zaznaczone "roczne"
 const paymentMethod = ref('rowner'); // Domyślnie zaznaczone "równe raty"
@@ -165,6 +167,19 @@ const submitForm = () => {
 
     pozostalaKwota = kwotaPoSplatach;
   }
+
+  const chartData=computed(()=>{
+    return {
+    labels:raty.value.map((item)=>`Rata: ${item.numer}`),
+    datasets:[
+      {
+        label: 'Rata',
+            backgroundColor: '#f87979',
+            data: raty.value.map((item)=>item.rata),
+      }
+    ]
+  }
+  })
 
   console.log('Kwota główna:', kwotaglowna.value);
   console.log('Nominalna stopa procentowa:', stopa.value);
