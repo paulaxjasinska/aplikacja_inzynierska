@@ -1,18 +1,18 @@
 <template>
     <form @submit.prevent="submitForm">
       <div class="form-group">
-        <label for="principal">Kwota główna:</label> 
-        <input type="number" v-model="principal" min="0" required />
+        <label for="kwotaglowna">Kwota główna:</label> 
+        <input type="number" v-model="kwotaglowna" min="0" required />
       </div>
       
       <div class="form-group">
-        <label for="interestRate">Początkowa nominalna stopa procentowa (%):</label>
-        <input type="number" v-model="interestRate" step="0.01" min="0" required />
+        <label for="stopa1">Początkowa nominalna stopa procentowa (%):</label>
+        <input type="number" v-model="stopa1" step="0.01" min="0" required />
       </div>
 
       <div class="form-group">
-        <label for="interestRate">Zmieniona nominalna stopa procentowa (%):</label>
-        <input type="number" v-model="interestRate" step="0.01" min="0" required />
+        <label for="stopa2">Zmieniona nominalna stopa procentowa (%):</label>
+        <input type="number" v-model="stopa2" step="0.01" min="0" required />
       </div>
 
       <div class="form-group">
@@ -22,23 +22,23 @@
       <div class="form-group radio-group">
         <div class="radio-container">
           <label>
-            <input type="radio" value="annual" v-model="paymentType" checked />
+            <input type="radio" value="roczne" v-model="paymentType" />
             roczne
           </label>
           <label>
-            <input type="radio" value="quarterly" v-model="paymentType" />
+            <input type="radio" value="kwartalne" v-model="paymentType" />
             kwartalne
           </label>
           <label>
-            <input type="radio" value="monthly" v-model="paymentType" />
+            <input type="radio" value="miesieczne" v-model="paymentType" />
             miesięczne
           </label>
         </div>
       </div>
       
       <div class="form-group">
-        <label for="installments">Liczba lat:</label>
-        <input type="number" v-model="installments" min="0" required />
+        <label for="lata">Liczba lat:</label>
+        <input type="number" v-model="lata" min="0" required />
       </div>
 
       <div class="form-group">
@@ -48,7 +48,7 @@
       <div class="form-group radio-group">
         <div class="radio-container">
           <label>
-            <input type="radio" value="rowneraty" v-model="paymentMethod" />
+            <input type="radio" value="rowner" v-model="paymentMethod" />
             równe raty
           </label>
           <label>
@@ -62,18 +62,18 @@
     </form>
 </template>
 
-<script>
-
+<script setup>
 import { ref, computed } from 'vue';
 
 const paymentType = ref('roczne'); // Domyślnie zaznaczone "roczne"
-const paymentMethod = ref('rowneraty'); // Domyślnie zaznaczone "równe raty"
+const paymentMethod = ref('rowner'); // Domyślnie zaznaczone "równe raty"
 const lata = ref(0);
 const kwotaglowna = ref(0);
-const stopa = ref(0);
+const stopa1 = ref(0);
+const stopa2 = ref(0);
 </script>
 
-  <style scoped>
+  <style>
 .credit-view {
   max-width: 650px;
   margin: 0 auto;
