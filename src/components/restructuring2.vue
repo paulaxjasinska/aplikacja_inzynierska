@@ -1,17 +1,13 @@
-<script>
-
-</script>
-
 <template>
     <form @submit.prevent="submitForm">
       <div class="form-group">
-        <label for="principal">Kwota główna:</label> 
-        <input type="number" v-model="principal" min="0" required />
+        <label for="kwotaglowna">Kwota główna:</label> 
+        <input type="number" v-model="kwotaglowna" min="0" required />
       </div>
       
       <div class="form-group">
-        <label for="interestRate">Nominalna stopa procentowa (%):</label>
-        <input type="number" v-model="interestRate" step="0.01" min="0" required />
+        <label for="stopa">Nominalna stopa procentowa (%):</label>
+        <input type="number" v-model="stopa" step="0.01" min="0" required />
       </div>
 
       <div class="form-group">
@@ -21,33 +17,157 @@
       <div class="form-group radio-group">
         <div class="radio-container">
           <label>
-            <input type="radio" value="annual" v-model="paymentType" checked />
+            <input type="radio" value="roczne" v-model="paymentType" checked />
             roczne
           </label>
           <label>
-            <input type="radio" value="quarterly" v-model="paymentType" />
+            <input type="radio" value="kwartalne" v-model="paymentType" />
             kwartalne
           </label>
           <label>
-            <input type="radio" value="monthly" v-model="paymentType" />
+            <input type="radio" value="miesieczne" v-model="paymentType" />
             miesięczne
           </label>
         </div>
       </div>
       
       <div class="form-group">
-        <label for="installments">Liczba lat:</label>
-        <input type="number" v-model="installments" min="0" required />
+        <label for="lata">Liczba lat:</label>
+        <input type="number" v-model="lata" min="0" required />
       </div>
 
       <div class="form-group">
-        <label for="installments">Liczba przedłużonych lat:</label>
-        <input type="number" v-model="installments" min="0" required />
+        <label for="latap">Liczba przedłużonych lat:</label>
+        <input type="number" v-model="latap" min="0" required />
+      </div>
+
+      <div class="form-group radio-group">
+        <div class="radio-container">
+          <label>
+            <input type="radio" value="rowner" v-model="paymentMethod" />
+            równe raty
+          </label>
+          <label>
+            <input type="radio" value="rownek" v-model="paymentMethod" />
+            równe części kapitałowe
+          </label>
+        </div>
       </div>
       
       <button type="submit">Oblicz</button>
     </form>
 </template>
+
+<script setup>
+import { ref, computed } from 'vue';
+
+
+const paymentType = ref('roczne'); // Domyślnie zaznaczone "roczne"
+const paymentMethod = ref('rowner'); // Domyślnie zaznaczone "równe raty"
+const lata = ref(0);
+const latap = ref(0);
+const kwotaglowna = ref(0);
+const stopa = ref(0);
+
+// liczymy ilość rat w zależności od rodzaju rat
+const liczbarat = computed(() => {
+  if (paymentType.value === 'kwartalne') {
+    return lata.value * 4;
+  } else if (paymentType.value === 'miesieczne') {
+    return lata.value * 12;
+  }
+  return lata.value;
+});
+
+const liczbaratp = computed(() => {
+  if (paymentType.value === 'kwartalne') {
+    return latap.value * 4;
+  } else if (paymentType.value === 'miesieczne') {
+    return latap.value * 12;
+  }
+  return latap.value;
+});
+
+// liczymy stope w zależności od rodzaju rat
+const przeliczonaStopa = computed(() => {
+  if (paymentType.value === 'kwartalne') {
+    return (Math.pow(1 + stopa.value / 100, 1 / 4) - 1) * 100;
+  } else if (paymentType.value === 'miesieczne'){
+    return (Math.pow(1 + stopa.value / 100, 1 / 12) - 1)*100
+  }
+  return stopa.value;
+});
+
+// formatujemy stopę procentową do obliczeń
+const formatowanaStopa = computed(() => {
+  return przeliczonaStopa.value.toFixed(2) + '%';
+});
+
+const rata1 = computed(() => {
+  if (
+    kwotaglowna.value === 0 ||
+    formatowanaStopa.value === 0 ||
+    lata.value === 0 ||
+    liczbarat.value === 0
+  ) {
+    return 0;
+  }
+
+  const formatowana = parseFloat(formatowanaStopa.value) / 100; // Konwersja na liczbę zmiennoprzecinkową i przeliczenie na ułamek dziesiętny
+  const nawias = 1 + formatowana;
+  const mianownik = Math.pow(nawias, liczbarat.value);
+  const rata1 = (kwotaglowna.value * formatowana) / (1 - 1 / mianownik);
+
+  return rata1.toFixed(2); // Zaokrąglenie do dwóch miejsc po przecinku
+});
+
+// Obliczenie pozostałej kwoty po liczbaratp ratach
+const pozostaloscKwota = computed(() => {
+  let pozostalaKwota = kwotaglowna.value;
+  for (let i = 1; i <= liczbaratp.value; i++) {
+    const czescOdsetkowa = pozostalaKwota * (parseFloat(formatowanaStopa.value) / 100);
+    const czescKapitalowa = paymentMethod.value === "rownek"
+      ? parseFloat(kwotaglowna.value / liczbarat.value)
+      : parseFloat(rata1.value) - czescOdsetkowa;
+    pozostalaKwota -= czescKapitalowa;
+  }
+  return pozostalaKwota.toFixed(2);
+});
+
+// Obliczanie kredytu PO zmianie
+const rata2 = computed(() => {
+  if (
+    kwotaglowna.value === 0 ||
+    formatowanaStopa.value === 0 ||
+    lata.value === 0 ||
+    liczbarat.value === 0 ||
+    pozostaloscKwota.value === 0
+  ) {
+    return 0;
+  }
+
+  const formatowana = parseFloat(formatowanaStopa.value) / 100; // Konwersja na liczbę zmiennoprzecinkową i przeliczenie na ułamek dziesiętny
+  const nawias = 1 + formatowana;
+  const mianownik = Math.pow(nawias,liczbaratp.value);
+  const rata2 = (pozostaloscKwota.value * formatowana) / (1 - 1 / mianownik);
+
+  return rata2.toFixed(2); // Zaokrąglenie do dwóch miejsc po przecinku
+});
+
+const submitForm = () => {
+  console.log('Kwota główna:', kwotaglowna.value);
+  console.log('Nominalna stopa procentowa:', stopa.value);
+  console.log('Formatowana stopa:', formatowanaStopa.value);
+  console.log('Rodzaj rat:', paymentType.value);
+  console.log('Liczba rat:', liczbarat.value);
+  console.log('Liczba rat po zmianie:', liczbaratp.value);
+  console.log('Rodzaj spłaty:', paymentMethod.value);
+  console.log('Rata przed zmianą:', rata1.value);
+  console.log('Kwota jaka zostaje:', pozostaloscKwota.value);
+  console.log('Rata PO zmianie:', rata2.value);
+}
+
+</script>
 
   <style scoped>
 .credit-view {
