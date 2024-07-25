@@ -1,17 +1,19 @@
-<script>
-
-</script>
-
 <template>
-    <form @submit.prevent="submitForm">
+<form @submit.prevent="submitForm">
       <div class="form-group">
-        <label for="principal">Kwota główna:</label> 
-        <input type="number" v-model="principal" min="0" required />
+        <label for="kwotaglowna">Kwota główna:</label>
+        <input type="number" v-model.number="kwotaglowna" min="0" required />
       </div>
-      
+
       <div class="form-group">
-        <label for="interestRate">Nominalna stopa procentowa (%):</label>
-        <input type="number" v-model="interestRate" step="0.01" min="0" required />
+        <label for="stopa">Nominalna stopa procentowa (%):</label>
+        <input
+          type="number"
+          v-model.number="stopa"
+          step="0.01"
+          min="0"
+          required
+        />
       </div>
 
       <div class="form-group">
@@ -21,52 +23,178 @@
       <div class="form-group radio-group">
         <div class="radio-container">
           <label>
-            <input type="radio" value="annual" v-model="paymentType" checked />
+            <input type="radio" value="roczne" v-model="paymentType" />
             roczne
           </label>
           <label>
-            <input type="radio" value="quarterly" v-model="paymentType" />
+            <input type="radio" value="kwartalne" v-model="paymentType" />
             kwartalne
           </label>
           <label>
-            <input type="radio" value="monthly" v-model="paymentType" />
+            <input type="radio" value="miesieczne" v-model="paymentType" />
             miesięczne
           </label>
         </div>
       </div>
-      
+
       <div class="form-group">
-        <label for="installments">Liczba lat:</label>
-        <input type="number" v-model="installments" min="0" required />
+        <label for="lata">Liczba lat:</label>
+        <input type="number" v-model.number="lata" min="0" required />
       </div>
 
       <div class="form-group">
-        <label for="installments">Rata, od której mają zacząć się 'wakacje kredytowe' :</label>
-        <input type="number" v-model="installments" min="0" required />
+        <label for="odr">Rata, od której mają zacząć się 'wakacje kredytowe':</label>
+        <input type="number" v-model.number="odr" min="0" required />
       </div>
 
       <div class="form-group">
-        <label for="installments">Rata, na której mają skończyć się 'wakacje kredytowe' :</label>
-        <input type="number" v-model="installments" min="0" required />
+        <label for="dor">Rata, do której mają skończyć się 'wakacje kredytowe':</label>
+        <input type="number" v-model.number="dor" min="0" required />
       </div>
-      
+
       <button type="submit">Oblicz</button>
     </form>
+
+    <table v-if="raty.length > 0">
+      <thead>
+        <tr>
+          <th>Numer raty</th>
+          <th>Kwota główna</th>
+          <th>Rata</th>
+          <th>Część odsetkowa</th>
+          <th>Część kapitałowa</th>
+          <th>Kwota główna po zapłaceniu raty</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="rata in raty"
+          :key="rata.numer"
+          :class="{ 'pause-row': rata.pause, 'additional-row': rata.additional }"
+        >
+          <td>{{ rata.numer }}</td>
+          <td>{{ rata.kwotaGlowna }}</td>
+          <td>{{ rata.rata }}</td>
+          <td>{{ rata.czescOdsetkowa }}</td>
+          <td>{{ rata.czescKapitalowa }}</td>
+          <td :class="{ 'green-text': rata.ostatni }">
+            {{ rata.kwotaPoSplatach }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
 </template>
 
-  <style scoped>
+
+<script setup>
+import { ref, computed } from 'vue';
+
+// Reaktywne zmienne dla formularza
+const paymentType = ref('roczne');
+const lata = ref(0);
+const kwotaglowna = ref(0);
+const stopa = ref(0);
+const odr = ref(0);
+const dor = ref(0);
+
+// Obliczenia liczby rat
+const liczbarat = computed(() => {
+  if (paymentType.value === 'kwartalne') return lata.value * 4;
+  if (paymentType.value === 'miesieczne') return lata.value * 12;
+  return lata.value;
+});
+
+// Przeliczenie nominalnej stopy procentowej
+const przeliczonaStopa = computed(() => {
+  if (paymentType.value === 'kwartalne') return (Math.pow(1 + stopa.value / 100, 1 / 4) - 1) * 100;
+  if (paymentType.value === 'miesieczne') return (Math.pow(1 + stopa.value / 100, 1 / 12) - 1) * 100;
+  return stopa.value;
+});
+
+// Formatowanie stopy procentowej
+const formatowanaStopa = computed(() => przeliczonaStopa.value.toFixed(2) + '%');
+
+// Obliczanie raty
+const rata = computed(() => {
+  if (kwotaglowna.value === 0 || przeliczonaStopa.value === 0 || lata.value === 0 || liczbarat.value === 0) {
+    return 0;
+  }
+  const formatowana = parseFloat(formatowanaStopa.value) / 100;
+  const mianownik = Math.pow(1 + formatowana, liczbarat.value);
+  return ((kwotaglowna.value * formatowana) / (1 - 1 / mianownik)).toFixed(2);
+});
+
+// Tablica rat
+const raty = ref([]);
+
+// Obliczanie raty
+const submitForm = () => {
+  raty.value = [];
+  let pozostalaKwota = parseFloat(kwotaglowna.value);
+  const tymczasoweRaty = [];
+  const wartosciDoDodania = [];
+
+  for (let i = 1; i <= liczbarat.value; i++) {
+    let rataWyliczona = parseFloat(rata.value);
+    let czescOdsetkowa = pozostalaKwota * (parseFloat(formatowanaStopa.value) / 100);
+    let czescKapitalowa = rataWyliczona - czescOdsetkowa;
+    let kwotaPoSplatach = pozostalaKwota - czescKapitalowa;
+
+    let kwotaGlowna = i < odr.value || i > dor.value ? pozostalaKwota.toFixed(2) : '-';
+    let rataValue = i < odr.value || i > dor.value ? rataWyliczona.toFixed(2) : '-';
+    let czescOdsetkowaValue = i < odr.value || i > dor.value ? czescOdsetkowa.toFixed(2) : '-';
+    let czescKapitalowaValue = i < odr.value || i > dor.value ? czescKapitalowa.toFixed(2) : '-';
+    let kwotaPoSplatachValue = i === liczbarat.value ? "0.00" : (i < odr.value || i > dor.value ? kwotaPoSplatach.toFixed(2) : '-');
+
+    tymczasoweRaty.push({
+      numer: i,
+      kwotaGlowna,
+      rata: rataValue,
+      czescOdsetkowa: czescOdsetkowaValue,
+      czescKapitalowa: czescKapitalowaValue,
+      kwotaPoSplatach: kwotaPoSplatachValue,
+      ostatni: i === liczbarat.value,
+      pause: i >= odr.value && i <= dor.value,
+      additional: kwotaGlowna === '-'
+    });
+
+    if (kwotaGlowna === '-') {
+      wartosciDoDodania.push({
+        numer: i,
+        kwotaGlowna: pozostalaKwota.toFixed(2),
+        rata: rataWyliczona.toFixed(2),
+        czescOdsetkowa: czescOdsetkowa.toFixed(2),
+        czescKapitalowa: czescKapitalowa.toFixed(2),
+        kwotaPoSplatach: kwotaPoSplatach.toFixed(2),
+        additional: true // Wskazanie, że jest to dodatkowy wiersz
+      });
+    }
+
+    pozostalaKwota = kwotaPoSplatach;
+  }
+
+  // Dodaj wartości zastąpione '-' jako nowe wiersze
+  wartosciDoDodania.forEach(rata => {
+    tymczasoweRaty.push({
+      ...rata,
+      pause: false // Wartości te nie będą miały oznaczenia wakacji kredytowych
+    });
+  });
+
+  raty.value = tymczasoweRaty;
+};
+</script>
+
+
+
+<style scoped>
 .credit-view {
   max-width: 650px;
   margin: 0 auto;
   padding: 20px;
-  background-color: #f9f9f968;
+  background-color: #f9f9f9;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.credit-view h1 {
-  text-align: center;
-  margin-bottom: 20px;
 }
 
 .form-group {
@@ -80,23 +208,6 @@
 }
 
 .form-group input {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-.form-group input[type="number"] {
   width: 100%;
   padding: 8px;
   border: 1px solid #ccc;
@@ -129,7 +240,7 @@ button {
   width: 100%;
   padding: 10px;
   background-color: #03cf77;
-  color: rgb(255, 255, 255);
+  color: #ffffff;
   border: none;
   border-radius: 4px;
   font-size: 16px;
@@ -138,7 +249,67 @@ button {
 }
 
 button:hover {
-  background-color: #03aa62;
+  background-color: #02b766;
 }
 
-  </style>
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: #ffffff;
+}
+
+th,
+td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+th {
+  font-weight: bold;
+}
+
+.green-text {
+  color: rgb(0, 119, 0);
+  font-weight: bold;
+}
+
+.thick-border {
+  border-top: 4px solid #03cf77;
+}
+
+.charts {
+  margin-top: 1rem;
+}
+
+.charts__types {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.charts__types label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.table-container {
+  margin: 20px 0;
+}
+
+.pause-row {
+  background-color: #f0f0f0;
+}
+
+.additional-row {
+  background-color: #e0f7e0;
+}
+
+</style>
+
+
+

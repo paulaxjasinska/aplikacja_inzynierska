@@ -221,7 +221,7 @@
 			datasets: [
 				{
 					label: "Raty",
-					backgroundColor: "#f87979",
+					backgroundColor: "#FF8C00",
 					data: raty.value.map((item) => item.rata),
 				},
 				{
@@ -231,7 +231,7 @@
 				},
 				{
 					label: "Część kapitałowa",
-					backgroundColor: "#FF8225",
+					backgroundColor: "#4169E1",
 					data: raty.value.map((item) => item.czescKapitalowa),
 				},
 			],
