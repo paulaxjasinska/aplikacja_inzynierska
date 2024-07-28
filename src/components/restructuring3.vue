@@ -84,12 +84,29 @@
         </tr>
       </tbody>
     </table>
+    <div class="charts" v-if="raty.length > 0">
+			<div class="charts__types">
+				<label>
+					<input id="bar" type="radio" value="bar" v-model="chartType" />Wykres
+					słupkowy
+				</label>
+				<label>
+					<input type="radio" value="line" v-model="chartType" />Wykres
+					liniowy</label
+				>
+			</div>
+			<CustomLineChart :chartData v-if="chartType === 'line'" />
+			<CustomChart :chartData v-if="chartType === 'bar'" />
+		</div>
 </div>
 </template>
 
 
 <script setup>
 import { ref, computed } from 'vue';
+import CustomChart from "@/components/CustomChart.vue";
+import CustomLineChart from "@/components/CustomLineChart.vue";
+
 const props = defineProps(["paymentMethod","kwotaglowna","lata","stopa","paymentType"])
 // Reaktywne zmienne dla formularza
 const paymentType = ref(props.paymentType || "roczne");
@@ -98,6 +115,7 @@ const kwotaglowna = ref(props.kwotaglowna || 0);
 const stopa = ref(props.stopa || 0);
 const odr = ref(0);
 const dor = ref(0);
+const chartType = ref("bar");
 
 // Obliczenia liczby rat
 const liczbarat = computed(() => {
@@ -185,6 +203,33 @@ const submitForm = () => {
 
   raty.value = tymczasoweRaty;
 };
+const chartData = computed(() => {
+		return {
+			labels: raty.value.map((item) => `Rata: ${item.numer}`),
+			datasets: [
+				{
+					label: "Raty",
+					backgroundColor: "#FF8C00",
+					data: raty.value.map((item) => item.rata),
+				},
+				{
+					label: "Część odsetkowa",
+					backgroundColor: "#03cf77",
+					data: raty.value.map((item) => item.czescOdsetkowa),
+				},
+				{
+					label: "Część kapitałowa",
+					backgroundColor: "#4169E1",
+					data: raty.value.map((item) => item.czescKapitalowa),
+				},
+        {
+					label: "Kwota Główna",
+					backgroundColor: "yellow",
+					data: raty.value.map((item) => item.kwotaGlowna),
+				}
+			],
+		};
+	});
 </script>
 
 
@@ -289,7 +334,7 @@ th {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1rem;
+  gap: 2rem;
 }
 
 .charts__types label {
