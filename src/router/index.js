@@ -17,8 +17,14 @@ const router = createRouter({
     {
       path: '/restructuring',
       name: 'restructuring',
-      component: () => import('../views/RestructuringView.vue')
+      component: () => import('../views/RestructuringView.vue'),
+      props: route => ({ paymentType: route.query.paymentType,
+        paymentMethod: route.query.paymentMethod,
+        lata: route.query.lata,
+        kwotaglowna: route.query.kwotaglowna,
+        stopa: route.query.stopa, })
     }
+
 
   ]
 })

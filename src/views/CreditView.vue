@@ -106,6 +106,15 @@
 			<CustomLineChart :chartData v-if="chartType === 'line'" />
 			<CustomChart :chartData v-if="chartType === 'bar'" />
 		</div>
+	<RouterLink :to="{name: 'restructuring',
+		query: {
+		paymentType: paymentType,
+		paymentMethod: paymentMethod,
+		lata: lata,
+		kwotaglowna: kwotaglowna,
+		stopa: stopa,
+		}}">zrestrukturuj kredyt
+	</RouterLink>
 	</div>
 </template>
 

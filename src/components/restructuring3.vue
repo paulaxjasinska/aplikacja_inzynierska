@@ -1,5 +1,6 @@
 <template>
-<form @submit.prevent="submitForm">
+<div>
+  <form @submit.prevent="submitForm">
       <div class="form-group">
         <label for="kwotaglowna">Kwota główna:</label>
         <input type="number" v-model.number="kwotaglowna" min="0" required />
@@ -83,17 +84,18 @@
         </tr>
       </tbody>
     </table>
+</div>
 </template>
 
 
 <script setup>
 import { ref, computed } from 'vue';
-
+const props = defineProps(["paymentMethod","kwotaglowna","lata","stopa","paymentType"])
 // Reaktywne zmienne dla formularza
-const paymentType = ref('roczne');
-const lata = ref(0);
-const kwotaglowna = ref(0);
-const stopa = ref(0);
+const paymentType = ref(props.paymentType || "roczne");
+const lata = ref(props.lata || 0);
+const kwotaglowna = ref(props.kwotaglowna || 0);
+const stopa = ref(props.stopa || 0);
 const odr = ref(0);
 const dor = ref(0);
 

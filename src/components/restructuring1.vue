@@ -94,13 +94,14 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-
-const paymentType = ref('roczne'); // Domyślnie zaznaczone "roczne"
-const paymentMethod = ref('rowner'); // Domyślnie zaznaczone "równe raty"
-const lata = ref(0);
+const props = defineProps(["paymentMethod","kwotaglowna","lata","stopa","paymentType"])
+console.log(props)
+const paymentType = ref(props.paymentType || "roczne");
+const paymentMethod = ref(props.paymentMethod || "rowner");
+const lata = ref(props.lata || 0);
 const lataz = ref(0);
-const kwotaglowna = ref(0);
-const stopa1 = ref(0);
+const kwotaglowna = ref(props.kwotaglowna || 0);
+const stopa1 = ref(props.stopa || 0);
 const stopa2 = ref(0);
 
 // liczymy ilość rat w zależności od rodzaju rat

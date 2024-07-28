@@ -21,15 +21,15 @@
 
     <!-- pokazujemy formularz w zależności od wybranego typu -->
     <form v-if="type === 1" class="form-group">
-      <restructuring1 />
+      <restructuring1 :kwotaglowna :lata :stopa :paymentMethod :paymentType/>
       <!-- tutaj umieść pola formularza dla tego typu -->
     </form>
     <form v-if="type === 2" class="form-group">
-      <restructuring2 />
+      <restructuring2 :kwotaglowna :lata :stopa :paymentMethod :paymentType/>
       <!-- tutaj umieść pola formularza dla tego typu -->
     </form>
     <form v-if="type === 3" class="form-group">
-      <restructuring3 />
+      <restructuring3 :kwotaglowna :lata :stopa :paymentMethod :paymentType/>
       <!-- tutaj umieść pola formularza dla tego typu -->
     </form>
   </div>
@@ -40,6 +40,7 @@ import { ref } from "vue";
 import restructuring1 from "../components/restructuring1.vue";
 import restructuring2 from "../components/restructuring2.vue";
 import restructuring3 from "../components/restructuring3.vue";
+const props = defineProps(["paymentMethod","kwotaglowna","lata","stopa","paymentType"])
 // domyślnie pokazujemy 1-szy formularz
 const type = ref(1);
 

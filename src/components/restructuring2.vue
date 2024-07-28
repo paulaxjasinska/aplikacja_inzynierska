@@ -1,5 +1,6 @@
 <template>
-    <form @submit.prevent="submitForm">
+<div>
+  <form @submit.prevent="submitForm">
       <div class="form-group">
         <label for="kwotaglowna">Kwota główna:</label> 
         <input type="number" v-model="kwotaglowna" min="0" required />
@@ -73,17 +74,18 @@
       </tr>
     </tbody>
   </table>
+</div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
-
-const paymentType = ref('roczne'); // Domyślnie zaznaczone "roczne"
-const lata = ref(0);
+const props = defineProps(["paymentMethod","kwotaglowna","lata","stopa","paymentType"])
 const latap = ref(0);
 const latas = ref(0);
-const kwotaglowna = ref(0);
-const stopa = ref(0);
+const paymentType = ref(props.paymentType || "roczne");
+const lata = ref(props.lata || 0);
+const kwotaglowna = ref(props.kwotaglowna || 0);
+const stopa = ref(props.stopa || 0);
 
 const liczbarat = computed(() => {
   if (paymentType.value === 'kwartalne') {
