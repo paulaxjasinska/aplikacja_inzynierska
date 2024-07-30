@@ -1,72 +1,78 @@
 <template>
-    <form @submit.prevent="submitForm">
-      <div class="form-group">
-        <label for="kwotaglowna">Kwota główna:</label> 
-        <input type="number" v-model="kwotaglowna" min="0" required />
-      </div>
-      
-      <div class="form-group">
-        <label for="stopa1">Początkowa nominalna stopa procentowa (%):</label>
-        <input type="number" v-model="stopa1" step="0.01" min="0" required />
-      </div>
+  <form @submit.prevent="submitForm">
+    <div class="form-group">
+      <label for="kwotaglowna">Kwota główna:</label> 
+      <input type="number" v-model="kwotaglowna" min="0" required />
+    </div>
 
-      <div class="form-group">
-        <label for="stopa2">Zmieniona nominalna stopa procentowa (%):</label>
-        <input type="number" v-model="stopa2" step="0.01" min="0" required />
-      </div>
+    <div class="form-group">
+      <label for="stopa1">Początkowa nominalna stopa procentowa (%):</label>
+      <input type="number" v-model="stopa1" step="0.01" min="0" required
+             @focus="stopa1TooltipVisible = true" @blur="stopa1TooltipVisible = false" />
+      <div v-if="stopa1TooltipVisible" class="tooltip">{{ stopa1Error }}</div>
+    </div>
 
-      <div class="form-group">
-        <label>Rodzaj rat:</label>
-      </div>
+    <div class="form-group">
+      <label for="stopa2">Zmieniona nominalna stopa procentowa (%):</label>
+      <input type="number" v-model="stopa2" step="0.01" min="0" required
+             @focus="stopa2TooltipVisible = true" @blur="stopa2TooltipVisible = false" />
+      <div v-if="stopa2TooltipVisible" class="tooltip">{{ stopa2Error }}</div>
+    </div>
 
-      <div class="form-group radio-group">
-        <div class="radio-container">
-          <label>
-            <input type="radio" value="roczne" v-model="paymentType" />
-            roczne
-          </label>
-          <label>
-            <input type="radio" value="kwartalne" v-model="paymentType" />
-            kwartalne
-          </label>
-          <label>
-            <input type="radio" value="miesieczne" v-model="paymentType" />
-            miesięczne
-          </label>
-        </div>
-      </div>
-      
-      <div class="form-group">
-        <label for="lata">Liczba lat:</label>
-        <input type="number" v-model="lata" min="0" required />
-      </div>
+    <div class="form-group">
+      <label>Rodzaj rat:</label>
+    </div>
 
-      <div class="form-group">
-        <label for="lataz">Liczba lat, po której ma się zmienić stopa procentowa:</label>
-        <input type="number" v-model="lataz" min="0" required />
+    <div class="form-group radio-group">
+      <div class="radio-container">
+        <label>
+          <input type="radio" value="roczne" v-model="paymentType" />
+          roczne
+        </label>
+        <label>
+          <input type="radio" value="kwartalne" v-model="paymentType" />
+          kwartalne
+        </label>
+        <label>
+          <input type="radio" value="miesieczne" v-model="paymentType" />
+          miesięczne
+        </label>
       </div>
+    </div>
 
-      <div class="form-group">
-        <label>Rodzaj spłaty:</label>
+    <div class="form-group">
+      <label for="lata">Liczba lat:</label>
+      <input type="number" v-model="lata" min="0" required />
+    </div>
+
+    <div class="form-group">
+      <label for="lataz">Liczba lat, po której ma się zmienić stopa procentowa:</label>
+      <input type="number" v-model="lataz" min="0" required
+             @focus="latazTooltipVisible = true" @blur="latazTooltipVisible = false" />
+      <div v-if="latazTooltipVisible" class="tooltip">{{ latazError }}</div>
+    </div>
+
+    <div class="form-group">
+      <label>Rodzaj spłaty:</label>
+    </div>
+
+    <div class="form-group radio-group">
+      <div class="radio-container">
+        <label>
+          <input type="radio" value="rowner" v-model="paymentMethod" />
+          równe raty
+        </label>
+        <label>
+          <input type="radio" value="rownek" v-model="paymentMethod" />
+          równe części kapitałowe
+        </label>
       </div>
+    </div>
 
-      <div class="form-group radio-group">
-        <div class="radio-container">
-          <label>
-            <input type="radio" value="rowner" v-model="paymentMethod" />
-            równe raty
-          </label>
-          <label>
-            <input type="radio" value="rownek" v-model="paymentMethod" />
-            równe części kapitałowe
-          </label>
-        </div>
-      </div>
-      
-      <button type="submit">Oblicz</button>
-    </form>
+    <button type="submit">Oblicz</button>
+  </form>
 
-    <table v-if="raty.length > 0">
+  <table v-if="raty.length > 0">
     <thead>
       <tr>
         <th>Numer raty</th>
@@ -90,29 +96,30 @@
       </tr>
     </tbody>
   </table>
+  
   <div class="charts" v-if="raty.length > 0">
-			<div class="charts__types">
-				<label>
-					<input id="bar" type="radio" value="bar" v-model="chartType" />Wykres
-					słupkowy
-				</label>
-				<label>
-					<input type="radio" value="line" v-model="chartType" />Wykres
-					liniowy</label
-				>
-			</div>
-			<CustomLineChart :chartData v-if="chartType === 'line'" />
-			<CustomChart :chartData v-if="chartType === 'bar'" />
-		</div>
+    <div class="charts__types">
+      <label>
+        <input id="bar" type="radio" value="bar" v-model="chartType" />Wykres słupkowy
+      </label>
+      <label>
+        <input type="radio" value="line" v-model="chartType" />Wykres liniowy
+      </label>
+    </div>
+    <CustomLineChart :chartData v-if="chartType === 'line'" />
+    <CustomChart :chartData v-if="chartType === 'bar'" />
+  </div>
 </template>
 
+
+
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import CustomChart from "@/components/CustomChart.vue";
 import CustomLineChart from "@/components/CustomLineChart.vue";
 
-const props = defineProps(["paymentMethod","kwotaglowna","lata","stopa","paymentType"])
-console.log(props)
+const props = defineProps(["paymentMethod", "kwotaglowna", "lata", "stopa", "paymentType"]);
+
 const paymentType = ref(props.paymentType || "roczne");
 const paymentMethod = ref(props.paymentMethod || "rowner");
 const lata = ref(props.lata || 0);
@@ -122,7 +129,14 @@ const stopa1 = ref(props.stopa || 0);
 const stopa2 = ref(0);
 const chartType = ref("bar");
 
-// liczymy ilość rat w zależności od rodzaju rat
+const stopa1Error = ref('');
+const stopa2Error = ref('');
+const latazError = ref('');
+
+const stopa1TooltipVisible = ref(false);
+const stopa2TooltipVisible = ref(false);
+const latazTooltipVisible = ref(false);
+
 const liczbarat = computed(() => {
   if (paymentType.value === 'kwartalne') {
     return lata.value * 4;
@@ -141,37 +155,32 @@ const liczbaratz = computed(() => {
   return lataz.value;
 });
 
-// liczymy stopy w zależności od rodzaju rat
 const przeliczonaStopa1 = computed(() => {
   if (paymentType.value === 'kwartalne') {
     return (Math.pow(1 + stopa1.value / 100, 1 / 4) - 1) * 100;
-  } else if (paymentType.value === 'miesieczne'){
-    return (Math.pow(1 + stopa1.value / 100, 1 / 12) - 1)*100
+  } else if (paymentType.value === 'miesieczne') {
+    return (Math.pow(1 + stopa1.value / 100, 1 / 12) - 1) * 100;
   }
   return stopa1.value;
 });
 
-// formatujemy stopę procentową do obliczeń
 const formatowanaStopa1 = computed(() => {
   return przeliczonaStopa1.value.toFixed(2) + '%';
 });
 
-// liczymy stopy w zależności od rodzaju rat zmienioną
 const przeliczonaStopa2 = computed(() => {
   if (paymentType.value === 'kwartalne') {
     return (Math.pow(1 + stopa2.value / 100, 1 / 4) - 1) * 100;
-  } else if (paymentType.value === 'miesieczne'){
-    return (Math.pow(1 + stopa2.value / 100, 1 / 12) - 1)*100
+  } else if (paymentType.value === 'miesieczne') {
+    return (Math.pow(1 + stopa2.value / 100, 1 / 12) - 1) * 100;
   }
   return stopa2.value;
 });
 
-// formatujemy stopę procentową do obliczeń zmienioną
 const formatowanaStopa2 = computed(() => {
   return przeliczonaStopa2.value.toFixed(2) + '%';
 });
 
-// Obliczenie raty kredytu przed zmianą
 const rata1 = computed(() => {
   if (
     kwotaglowna.value === 0 ||
@@ -182,15 +191,14 @@ const rata1 = computed(() => {
     return 0;
   }
 
-  const formatowana = parseFloat(formatowanaStopa1.value) / 100; // Konwersja na liczbę zmiennoprzecinkową i przeliczenie na ułamek dziesiętny
+  const formatowana = parseFloat(formatowanaStopa1.value) / 100;
   const nawias = 1 + formatowana;
   const mianownik = Math.pow(nawias, liczbarat.value);
   const rata1 = (kwotaglowna.value * formatowana) / (1 - 1 / mianownik);
 
-  return rata1.toFixed(2); // Zaokrąglenie do dwóch miejsc po przecinku
+  return rata1.toFixed(2);
 });
 
-// Obliczenie pozostałej kwoty po liczbaratz ratach
 const pozostaloscKwota = computed(() => {
   let pozostalaKwota = kwotaglowna.value;
   for (let i = 1; i <= liczbaratz.value; i++) {
@@ -203,7 +211,6 @@ const pozostaloscKwota = computed(() => {
   return pozostalaKwota.toFixed(2);
 });
 
-// Obliczanie kredytu PO zmianie
 const rata2 = computed(() => {
   if (
     kwotaglowna.value === 0 ||
@@ -215,17 +222,37 @@ const rata2 = computed(() => {
     return 0;
   }
 
-  const formatowana2 = parseFloat(formatowanaStopa2.value) / 100; // Konwersja na liczbę zmiennoprzecinkową i przeliczenie na ułamek dziesiętny
+  const formatowana2 = parseFloat(formatowanaStopa2.value) / 100;
   const nawias = 1 + formatowana2;
   const mianownik = Math.pow(nawias, liczbarat.value - liczbaratz.value);
   const rata2 = (pozostaloscKwota.value * formatowana2) / (1 - 1 / mianownik);
 
-  return rata2.toFixed(2); // Zaokrąglenie do dwóch miejsc po przecinku
+  return rata2.toFixed(2);
 });
 
 const raty = ref([]);
 
+const validateForm = () => {
+  stopa1Error.value = '';
+  stopa2Error.value = '';
+  latazError.value = '';
+
+  if (przeliczonaStopa1.value === przeliczonaStopa2.value) {
+    stopa2Error.value = 'Zmieniona stopa nie może się równać początkowej stopie';
+  }
+
+  if (liczbaratz.value >= liczbarat.value) {
+    latazError.value = 'Liczba rat, po których ma nastąpić zmiana stopy nie może być większa od liczby rat';
+  }
+};
+
 const submitForm = () => {
+  validateForm();
+
+  if (stopa2Error.value || latazError.value) {
+    return;
+  }
+
   raty.value = [];
   let pozostalaKwota = parseFloat(kwotaglowna.value);
   let isAfterRestructuring = false;
@@ -282,34 +309,37 @@ const submitForm = () => {
   console.log('Rata PO zmianie:', rata2.value);
   console.log('Raty:', raty.value);
 }
+
 const chartData = computed(() => {
-		return {
-			labels: raty.value.map((item) => `Rata: ${item.numer}`),
-			datasets: [
-				{
-					label: "Raty",
-					backgroundColor: "#FF8C00",
-					data: raty.value.map((item) => item.rata),
-				},
-				{
-					label: "Część odsetkowa",
-					backgroundColor: "#03cf77",
-					data: raty.value.map((item) => item.czescOdsetkowa),
-				},
-				{
-					label: "Część kapitałowa",
-					backgroundColor: "#4169E1",
-					data: raty.value.map((item) => item.czescKapitalowa),
-				},
-        {
-					label: "Kwota Główna",
-					backgroundColor: "yellow",
-					data: raty.value.map((item) => item.kwotaGlowna),
-				}
-			],
-		};
-	});
+  return {
+    labels: raty.value.map((item) => `Rata: ${item.numer}`),
+    datasets: [
+      {
+        label: "Raty",
+        backgroundColor: "#FF8C00",
+        data: raty.value.map((item) => item.rata),
+      },
+      {
+        label: "Część odsetkowa",
+        backgroundColor: "#03cf77",
+        data: raty.value.map((item) => item.czescOdsetkowa),
+      },
+      {
+        label: "Część kapitałowa",
+        backgroundColor: "#4169E1",
+        data: raty.value.map((item) => item.czescKapitalowa),
+      },
+      {
+        label: "Kwota Główna",
+        backgroundColor: "yellow",
+        data: raty.value.map((item) => item.kwotaGlowna),
+      }
+    ],
+  };
+});
 </script>
+
+
 
 
 
@@ -442,5 +472,28 @@ th {
 		align-items: center;
 		gap: 0.2rem;
 	}
+
+  .tooltip {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  border-radius: 4px;
+  padding: 5px;
+  font-size: 0.75em;
+  display: inline-block;
+  z-index: 1000;
+  top: 100%;
+  left: 0;
+  transform: translateY(5px);
+}
+
+.form-group {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+input[type="number"]:focus ~ .tooltip {
+  display: block;
+}
 
   </style>

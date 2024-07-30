@@ -106,15 +106,22 @@
 			<CustomLineChart :chartData v-if="chartType === 'line'" />
 			<CustomChart :chartData v-if="chartType === 'bar'" />
 		</div>
-	<RouterLink :to="{name: 'restructuring',
-		query: {
-		paymentType: paymentType,
-		paymentMethod: paymentMethod,
-		lata: lata,
-		kwotaglowna: kwotaglowna,
-		stopa: stopa,
-		}}">zrestrukturuj kredyt
-	</RouterLink>
+		<RouterLink
+			v-if="showRestructureLink"
+			:to="{
+				name: 'restructuring',
+				query: {
+					paymentType: paymentType,
+					paymentMethod: paymentMethod,
+					lata: lata,
+					kwotaglowna: kwotaglowna,
+					stopa: stopa,
+				},
+			}"
+			class="restructure-link"
+		>
+			Zrestrukturuj kredyt
+		</RouterLink>
 	</div>
 </template>
 
@@ -129,6 +136,7 @@
 	const kwotaglowna = ref(0);
 	const stopa = ref(0);
 	const chartType = ref("bar");
+	const showRestructureLink = ref(false);
 
 	// liczymy ilość rat w zależności od rodzaju rat
 	const liczbarat = computed(() => {
@@ -213,6 +221,8 @@
 
 			pozostalaKwota = kwotaPoSplatach;
 		}
+
+		showRestructureLink.value = true;
 
 		console.log("Kwota główna:", kwotaglowna.value);
 		console.log("Nominalna stopa procentowa:", stopa.value);
@@ -362,5 +372,21 @@
 		justify-content: center;
 		align-items: center;
 		gap: 0.2rem;
+	}
+
+	.restructure-link {
+		display: block;
+		width: 100%;
+		padding: 10px;
+		background-color: #03cf77;
+		color: #fff;
+		text-align: center;
+		text-decoration: none;
+		border-radius: 4px;
+		margin-top: 20px;
+	}
+
+	.restructure-link:hover {
+		background-color: #03aa62;
 	}
 </style>
