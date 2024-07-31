@@ -7,7 +7,7 @@
 		<form @submit.prevent="submitForm">
 			<div class="form-group">
 				<label for="kwotaglowna">Kwota główna:</label>
-				<input type="number" v-model.number="kwotaglowna" min="0" required />
+				<input type="number" v-model.number="kwotaglowna"/>
 			</div>
 
 			<div class="form-group">
@@ -16,8 +16,6 @@
 					type="number"
 					v-model.number="stopa"
 					step="0.01"
-					min="0"
-					required
 				/>
 			</div>
 
@@ -44,7 +42,7 @@
 
 			<div class="form-group">
 				<label for="lata">Liczba lat:</label>
-				<input type="number" v-model.number="lata" min="0" required />
+				<input type="number" v-model.number="lata" />
 			</div>
 
 			<div class="form-group">
@@ -129,6 +127,7 @@
 	import { ref, computed } from "vue";
 	import CustomChart from "@/components/CustomChart.vue";
 	import CustomLineChart from "@/components/CustomLineChart.vue";
+	import { toast } from 'vue3-toastify';
 
 	const paymentType = ref("roczne"); // Domyślnie zaznaczone "roczne"
 	const paymentMethod = ref("rowner"); // Domyślnie zaznaczone "równe raty"
@@ -187,6 +186,10 @@
 	const raty = ref([]);
 
 	const submitForm = () => {
+	if(!kwotaglowna.value && kwotaglowna.value > 0) return toast.error('Kwota główna jest wymagana i musi być większa od 0');
+	if(!stopa.value && stopa.value > 0) return toast.error('Nominalna stopa procentowa jest wymagana i musi być większa od 0');
+	if(!lata.value && lata.value > 0) return toast.error('Liczba lat jest wymagana i musi być większa od 0');
+
 		raty.value = [];
 		let pozostalaKwota = parseFloat(kwotaglowna.value);
 
