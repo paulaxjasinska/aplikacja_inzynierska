@@ -186,9 +186,9 @@
 	const raty = ref([]);
 
 	const submitForm = () => {
-	if(!kwotaglowna.value && kwotaglowna.value > 0) return toast.error('Kwota główna jest wymagana i musi być większa od 0');
-	if(!stopa.value && stopa.value > 0) return toast.error('Nominalna stopa procentowa jest wymagana i musi być większa od 0');
-	if(!lata.value && lata.value > 0) return toast.error('Liczba lat jest wymagana i musi być większa od 0');
+	if(!kwotaglowna.value || kwotaglowna.value <= 0) return toast.error('Kwota główna jest wymagana i musi być większa od 0.');
+	if(!stopa.value || stopa.value <= 0) return toast.error('Nominalna stopa procentowa jest wymagana i musi być większa od 0.');
+	if(!lata.value || lata.value <= 0) return toast.error('Liczba lat jest wymagana i musi być większa od 0.');
 
 		raty.value = [];
 		let pozostalaKwota = parseFloat(kwotaglowna.value);

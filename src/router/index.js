@@ -1,10 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import Vue3Toastify from 'vue3-toastify';
-import 'vue3-toastify/dist/index.css';
 import CreditView from '../views/CreditView.vue';
 
-createApp(HomeView).use(Vue3Toastify).mount('#app')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
