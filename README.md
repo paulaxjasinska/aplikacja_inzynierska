@@ -1,6 +1,6 @@
-# aplikacja
+# Aplikacja inżynierska
 
-This template should help get you started developing with Vue 3 in Vite.
+Budowanie schematu kredytu oraz możliwość trzech różnych restrukturyzacji. Możliwość podglądnięcia wykresów jak zmienia się kredyt pod wpływem czasu.
 
 ## Recommended IDE Setup
 
