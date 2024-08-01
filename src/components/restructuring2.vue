@@ -3,12 +3,12 @@
     <form @submit.prevent="submitForm">
         <div class="form-group">
           <label for="kwotaglowna">Kwota główna:</label> 
-          <input type="number" v-model="kwotaglowna" min="0" required />
+          <input type="number" v-model="kwotaglowna" />
         </div>
         
         <div class="form-group">
           <label for="stopa">Nominalna stopa procentowa (%):</label>
-          <input type="number" v-model="stopa" step="0.01" min="0" required />
+          <input type="number" v-model="stopa" step="0.01" />
         </div>
   
         <div class="form-group">
@@ -34,21 +34,20 @@
         
         <div class="form-group">
           <label for="lata">Liczba lat:</label>
-          <input type="number" v-model="lata" min="0" required />
+          <input type="number" v-model="lata" />
         </div>
   
         <div class="form-group">
           <label for="latas">Liczba lat, po których ma nastąpić wydłużenie okresu spłaty:</label>
-          <input type="number" v-model="latas" min="0" required />
-          <p v-if="showLatasError" class="error-message">Liczba rat, po których ma nastąpić przedłużenie nie może być większa od liczby rat</p>
+          <input type="number" v-model="latas" />
         </div>
   
         <div class="form-group">
           <label for="latap">Liczba przedłużonych lat:</label>
-          <input type="number" v-model="latap" min="0" required />
+          <input type="number" v-model="latap" />
         </div>
         
-        <button type="submit" :disabled="showLatasError">Oblicz</button>
+        <button type="submit">Oblicz</button>
       </form>
   
       <table v-if="raty.length > 0">
@@ -97,6 +96,7 @@
   import { ref, computed, watch } from 'vue';
   import CustomChart from "@/components/CustomChart.vue";
   import CustomLineChart from "@/components/CustomLineChart.vue";
+  import { toast } from 'vue3-toastify';
   
   const props = defineProps(["paymentMethod","kwotaglowna","lata","stopa","paymentType"])
   const latap = ref(0);
@@ -186,9 +186,16 @@
   });
   
   const raty = ref([]);
-  const showLatasError = ref(false);
   
   const submitForm = () => {
+
+    if(!kwotaglowna.value || kwotaglowna.value <= 0) return toast.error('Kwota główna jest wymagana i musi być większa od 0.');
+	  if(!stopa.value || stopa.value <= 0) return toast.error('Nominalna stopa procentowa jest wymagana i musi być większa od 0.');
+	  if(!lata.value || lata.value <= 0) return toast.error('Liczba lat jest wymagana i musi być większa od 0.');
+    if(!latas.value || latas.value <= 0) return toast.error('Liczba lat, po których ma nastąpić wydłużenie spłaty jest wymagana i musi być większa od 0.');
+    if(!latap.value || latap.value <= 0) return toast.error('Liczba przedłużonych lat jest wymagana i musi być większa od 0.');
+    if(latas.value > lata.value) return toast.error('Liczba lat, po których ma nastąpić wydłużenie spłaty musi być mniejsza od liczby lat.');
+    
     raty.value = [];
     let pozostalaKwota = parseFloat(kwotaglowna.value);
     let isAfterRestructuring = false;
@@ -231,10 +238,6 @@
     console.log('Rata po zmianie:', rata2.value);
     console.log('Raty:', raty.value);
   };
-  
-  watch([liczbarats, liczbarat], () => {
-    showLatasError.value = liczbarats.value >= liczbarat.value;
-  });
   
   const chartData = computed(() => {
       return {
@@ -399,9 +402,4 @@ th {
   gap: 0.2rem;
 }
 
-.error-message {
-  color: red;
-  font-weight: bold;
-  margin-top: 5px;
-}
 </style>

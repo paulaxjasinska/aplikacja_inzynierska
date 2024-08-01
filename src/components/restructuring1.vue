@@ -2,21 +2,17 @@
   <form @submit.prevent="submitForm">
     <div class="form-group">
       <label for="kwotaglowna">Kwota główna:</label> 
-      <input type="number" v-model="kwotaglowna" min="0" required />
+      <input type="number" v-model="kwotaglowna" />
     </div>
 
     <div class="form-group">
       <label for="stopa1">Początkowa nominalna stopa procentowa (%):</label>
-      <input type="number" v-model="stopa1" step="0.01" min="0" required
-             @focus="stopa1TooltipVisible = true" @blur="stopa1TooltipVisible = false" />
-      <div v-if="stopa1TooltipVisible" class="tooltip">{{ stopa1Error }}</div>
+      <input type="number" v-model="stopa1" step="0.01" />
     </div>
 
     <div class="form-group">
       <label for="stopa2">Zmieniona nominalna stopa procentowa (%):</label>
-      <input type="number" v-model="stopa2" step="0.01" min="0" required
-             @focus="stopa2TooltipVisible = true" @blur="stopa2TooltipVisible = false" />
-      <div v-if="stopa2TooltipVisible" class="tooltip">{{ stopa2Error }}</div>
+      <input type="number" v-model="stopa2" step="0.01" />
     </div>
 
     <div class="form-group">
@@ -42,14 +38,12 @@
 
     <div class="form-group">
       <label for="lata">Liczba lat:</label>
-      <input type="number" v-model="lata" min="0" required />
+      <input type="number" v-model="lata" />
     </div>
 
     <div class="form-group">
       <label for="lataz">Liczba lat, po której ma się zmienić stopa procentowa:</label>
-      <input type="number" v-model="lataz" min="0" required
-             @focus="latazTooltipVisible = true" @blur="latazTooltipVisible = false" />
-      <div v-if="latazTooltipVisible" class="tooltip">{{ latazError }}</div>
+      <input type="number" v-model="lataz" />
     </div>
 
     <div class="form-group">
@@ -117,6 +111,7 @@
 import { ref, computed, watch } from 'vue';
 import CustomChart from "@/components/CustomChart.vue";
 import CustomLineChart from "@/components/CustomLineChart.vue";
+import { toast } from 'vue3-toastify';
 
 const props = defineProps(["paymentMethod", "kwotaglowna", "lata", "stopa", "paymentType"]);
 
@@ -128,14 +123,6 @@ const kwotaglowna = ref(props.kwotaglowna || 0);
 const stopa1 = ref(props.stopa || 0);
 const stopa2 = ref(0);
 const chartType = ref("bar");
-
-const stopa1Error = ref('');
-const stopa2Error = ref('');
-const latazError = ref('');
-
-const stopa1TooltipVisible = ref(false);
-const stopa2TooltipVisible = ref(false);
-const latazTooltipVisible = ref(false);
 
 const liczbarat = computed(() => {
   if (paymentType.value === 'kwartalne') {
@@ -232,26 +219,15 @@ const rata2 = computed(() => {
 
 const raty = ref([]);
 
-const validateForm = () => {
-  stopa1Error.value = '';
-  stopa2Error.value = '';
-  latazError.value = '';
-
-  if (przeliczonaStopa1.value === przeliczonaStopa2.value) {
-    stopa2Error.value = 'Zmieniona stopa nie może się równać początkowej stopie';
-  }
-
-  if (liczbaratz.value >= liczbarat.value) {
-    latazError.value = 'Liczba rat, po których ma nastąpić zmiana stopy nie może być większa od liczby rat';
-  }
-};
-
 const submitForm = () => {
-  validateForm();
 
-  if (stopa2Error.value || latazError.value) {
-    return;
-  }
+  if(!kwotaglowna.value || kwotaglowna.value <= 0) return toast.error('Kwota główna jest wymagana i musi być większa od 0.');
+	if(!stopa1.value || stopa1.value <= 0) return toast.error('Nominalna stopa procentowa jest wymagana i musi być większa od 0.');
+  if(!stopa2.value || stopa2.value <= 0) return toast.error('Zmieniona nominalna stopa procentowa jest wymagana i musi być większa od 0.');
+	if(!lata.value || lata.value <= 0) return toast.error('Liczba lat jest wymagana i musi być większa od 0.');
+  if(!lataz.value || lataz.value <= 0) return toast.error('Liczba lat, po której ma się zmienić stopa procentowa jest wymagana i musi być większa od 0.');
+  if(stopa1.value == stopa2.value) return toast.error('Zmieniona nominalna stopa procentowa nie może być równa nominalnej stopie procentowej.');
+  if(lataz.value > lata.value) return toast.error('Liczba lat, po których ma się zmienić stopa procentowa musi być mniejsza od liczby lat.');
 
   raty.value = [];
   let pozostalaKwota = parseFloat(kwotaglowna.value);

@@ -3,7 +3,7 @@
   <form @submit.prevent="submitForm">
       <div class="form-group">
         <label for="kwotaglowna">Kwota główna:</label>
-        <input type="number" v-model.number="kwotaglowna" min="0" required />
+        <input type="number" v-model.number="kwotaglowna" />
       </div>
 
       <div class="form-group">
@@ -12,8 +12,6 @@
           type="number"
           v-model.number="stopa"
           step="0.01"
-          min="0"
-          required
         />
       </div>
 
@@ -40,17 +38,17 @@
 
       <div class="form-group">
         <label for="lata">Liczba lat:</label>
-        <input type="number" v-model.number="lata" min="0" required />
+        <input type="number" v-model.number="lata" />
       </div>
 
       <div class="form-group">
         <label for="odr">Rata, od której mają zacząć się 'wakacje kredytowe':</label>
-        <input type="number" v-model.number="odr" min="0" required />
+        <input type="number" v-model.number="odr" />
       </div>
 
       <div class="form-group">
         <label for="dor">Rata, do której mają skończyć się 'wakacje kredytowe':</label>
-        <input type="number" v-model.number="dor" min="0" required />
+        <input type="number" v-model.number="dor" />
       </div>
 
       <button type="submit">Oblicz</button>
@@ -106,6 +104,7 @@
 import { ref, computed } from 'vue';
 import CustomChart from "@/components/CustomChart.vue";
 import CustomLineChart from "@/components/CustomLineChart.vue";
+import { toast } from 'vue3-toastify';
 
 const props = defineProps(["paymentMethod","kwotaglowna","lata","stopa","paymentType"])
 // Reaktywne zmienne dla formularza
@@ -149,6 +148,16 @@ const raty = ref([]);
 
 // Obliczanie raty
 const submitForm = () => {
+
+  if(!kwotaglowna.value || kwotaglowna.value <= 0) return toast.error('Kwota główna jest wymagana i musi być większa od 0.');
+	if(!stopa.value || stopa.value <= 0) return toast.error('Nominalna stopa procentowa jest wymagana i musi być większa od 0.');
+	if(!lata.value || lata.value <= 0) return toast.error('Liczba lat jest wymagana i musi być większa od 0.');
+  if(!odr.value || odr.value <= 0) return toast.error('Rata, od której mają się zacząć wakacje kredytowe jest wymagana i musi być większa od 0.');
+  if(!dor.value || dor.value <= 0) return toast.error('Rata, od której mają się skończyć wakacje kredytowe jest wymagana i musi być większa od 0.');
+  if(odr.value > dor.value) return toast.error('Rata, od której mają się zacząć wakacje kredytowe musi być mniejsza od raty kończącej wakacje kredytowe.');
+  if(dor.value > liczbarat.value) return toast.error('Rata, do której mają się skończyć wakacje kredytowe musi być mniejsza od liczby rat kredytu.');
+  if(odr.value > liczbarat.value && dor.value > liczbarat.value) return toast.error('Raty dotyczące wakacji kredytowych muszą być mniejsze od wartości rat kredytu.')
+
   raty.value = [];
   let pozostalaKwota = parseFloat(kwotaglowna.value);
   const tymczasoweRaty = [];
