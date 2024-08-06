@@ -7,14 +7,32 @@
     <div class="form-group radio-group">
       <!-- w pętli wyświetlamy 3 radioboxy służące do wyboru, który formularz ma być pokazany -->
       <div class="radio-container">
-        <div v-for="option in types" :key="option.id" class="radio-item">
+        <div class="radio-item">
           <input
             type="radio"
-            :id="`type${option.id}`"
-            :value="option.id"
+            :id='1'
+            :value='1'
             v-model="type"
           />
-          <label :for="`type${option.id}`">{{ option.label }}</label>
+          <label :for='1' v-tooltip.top="'W danym momencie spłaty kredytu zmienisz stopę procentową.'">zmiana wysokości stopy procentowej</label>
+        </div>
+        <div class="radio-item">
+          <input
+            type="radio"
+            :id='2'
+            :value='2'
+            v-model="type"
+          />
+          <label :for='2' v-tooltip.top="'W danym momencie spłaty wydłużasz swój kredyt.'">wydłużenie okresu spłaty</label>
+        </div>
+        <div class="radio-item">
+          <input
+            type="radio"
+            :id='3'
+            :value='3'
+            v-model="type"
+          />
+          <label :for='3' v-tooltip.top="'W danym momencie spłaty zawieszasz raty do pewnego momentu.'">'wakacje kredytowe'</label>
         </div>
       </div>
     </div>
@@ -45,11 +63,11 @@ const props = defineProps(["paymentMethod","kwotaglowna","lata","stopa","payment
 const type = ref(1);
 
 // zakładamy że są 3 typy formularzy
-const types = [
-  { id: 1, label: "zmiana wysokości stopy procentowej" },
-  { id: 2, label: "wydłużenie okresu spłaty" },
-  { id: 3, label: "'wakacje kredytowe'" },
-];
+// const types = [
+//   { id: 1, label: "zmiana wysokości stopy procentowej" },
+//   { id: 2, label: "wydłużenie okresu spłaty" },
+//   { id: 3, label: "'wakacje kredytowe'" },
+// ];
 </script>
 
 <style scoped>

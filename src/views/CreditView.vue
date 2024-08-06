@@ -1,6 +1,6 @@
 <template>
 	<div class="credit-view">
-		<h1>Stwórz schemat swojego kredytu</h1>
+		<h1 v-tooltip.top="'Pokazane szczegółowo warunki i elementy spłaty kredytu.'">Stwórz schemat swojego kredytu</h1>
 		<p>Uzupełnij dany formularz by móc wygenerować schemat.</p>
 		<br />
 
