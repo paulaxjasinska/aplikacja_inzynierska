@@ -18,7 +18,7 @@
         <div class="form-group radio-group">
           <div class="radio-container">
             <label>
-              <input type="radio" value="roczne" v-model="paymentType" checked />
+              <input type="radio" value="roczne" v-model="paymentType" />
               roczne
             </label>
             <label>
