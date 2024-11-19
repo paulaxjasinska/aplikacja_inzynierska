@@ -67,29 +67,37 @@
   </form>
 
   <table v-if="raty.length > 0">
-    <thead>
-      <tr>
-        <th>Numer raty</th>
-        <th>Kwota główna</th>
-        <th>Rata</th>
-        <th>Część odsetkowa</th>
-        <th>Część kapitałowa</th>
-        <th>Kwota główna po zapłaceniu raty</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="rata in raty" :key="rata.numer" :class="{ 'thick-border': rata.restrukturyzacja }">
-        <td>{{ rata.numer }}</td>
-        <td>{{ rata.kwotaGlowna }}</td>
-        <td>{{ rata.rata }}</td>
-        <td>{{ rata.czescOdsetkowa }}</td>
-        <td>{{ rata.czescKapitalowa }}</td>
-        <td :class="{ 'green-text': rata.ostatni }">
-          {{ rata.kwotaPoSplatach }}
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <thead>
+    <tr>
+      <th>Numer raty</th>
+      <th>Kwota główna</th>
+      <th>Rata</th>
+      <th>Część odsetkowa</th>
+      <th>Część kapitałowa</th>
+      <th>Kwota główna po zapłaceniu raty</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr
+      v-for="(rata, index) in raty"
+      :key="rata.numer"
+      :class="{ 'thick-border': rata.restrukturyzacja }"
+    >
+      <td>{{ rata.numer }}</td>
+      <td>{{ rata.kwotaGlowna }}</td>
+      <td>{{ rata.rata }}</td>
+      <td>{{ rata.czescOdsetkowa }}</td>
+      <td>{{ rata.czescKapitalowa }}</td>
+      <td 
+        :class="{ 'green-text': index === raty.length - 1 }"
+      >
+        {{ index === raty.length - 1 ? '0.00' : rata.kwotaPoSplatach }}
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
   
   <div class="charts" v-if="raty.length > 0">
     <div class="charts__types">
@@ -143,17 +151,28 @@ const liczbaratz = computed(() => {
 });
 
 const przeliczonaStopa1 = computed(() => {
-  if (paymentType.value === 'kwartalne') {
-    return (Math.pow(1 + stopa1.value / 100, 1 / 4) - 1) * 100;
-  } else if (paymentType.value === 'miesieczne') {
-    return (Math.pow(1 + stopa1.value / 100, 1 / 12) - 1) * 100;
+  const nominalRate = parseFloat(stopa1.value); // Spróbuj sparsować wartość jako liczbę
+
+  if (isNaN(nominalRate) || nominalRate <= 0) {
+    return 0; // Zwróć domyślną wartość, jeśli stopa jest niepoprawna
   }
-  return stopa1.value;
+
+  if (paymentType.value === 'kwartalne') {
+    return (Math.pow(1 + nominalRate / 100, 1 / 4) - 1) * 100;
+  } else if (paymentType.value === 'miesieczne') {
+    return (Math.pow(1 + nominalRate / 100, 1 / 12) - 1) * 100;
+  }
+
+  return nominalRate; // Domyślnie zwróć wartość roczną, jeśli nic nie pasuje
 });
+
+
+
 
 const formatowanaStopa1 = computed(() => {
   return przeliczonaStopa1.value.toFixed(2) + '%';
 });
+
 
 const przeliczonaStopa2 = computed(() => {
   if (paymentType.value === 'kwartalne') {
@@ -171,20 +190,21 @@ const formatowanaStopa2 = computed(() => {
 const rata1 = computed(() => {
   if (
     kwotaglowna.value === 0 ||
-    formatowanaStopa1.value === 0 ||
+    przeliczonaStopa1.value === 0 ||
     lata.value === 0 ||
     liczbarat.value === 0
   ) {
     return 0;
   }
 
-  const formatowana = parseFloat(formatowanaStopa1.value) / 100;
-  const nawias = 1 + formatowana;
+  const stopaJakoLiczba = przeliczonaStopa1.value / 100;
+  const nawias = 1 + stopaJakoLiczba;
   const mianownik = Math.pow(nawias, liczbarat.value);
-  const rata1 = (kwotaglowna.value * formatowana) / (1 - 1 / mianownik);
+  const rata1 = (kwotaglowna.value * stopaJakoLiczba) / (1 - 1 / mianownik);
 
   return rata1.toFixed(2);
 });
+
 
 const pozostaloscKwota = computed(() => {
   let pozostalaKwota = kwotaglowna.value;

@@ -172,8 +172,7 @@
 		) {
 			return 0;
 		}
-
-		const formatowana = parseFloat(formatowanaStopa.value) / 100; // Konwersja na liczbę zmiennoprzecinkową i przeliczenie na ułamek dziesiętny
+		const formatowana = parseFloat(formatowanaStopa.value) / 100; 
 		const nawias = 1 + formatowana;
 		const mianownik = Math.pow(nawias, liczbarat.value);
 		const rata = (kwotaglowna.value * formatowana) / (1 - 1 / mianownik);
