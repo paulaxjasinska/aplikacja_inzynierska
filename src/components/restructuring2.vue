@@ -135,85 +135,93 @@
   });
   
   const przeliczonaStopa = computed(() => {
-  const nominalRate = parseFloat(stopa.value); // Spróbuj sparsować wartość jako liczbę
-
-  if (isNaN(nominalRate) || nominalRate <= 0) {
-    return 0; // Zwróć domyślną wartość, jeśli stopa jest niepoprawna
+  if (!stopa.value || stopa.value <= 0) {
+    return 0; // Wartość domyślna, gdy stopa jest nieprawidłowa
   }
 
   if (paymentType.value === 'kwartalne') {
-    return (Math.pow(1 + nominalRate / 100, 1 / 4) - 1) * 100;
+    return (Math.pow(1 + stopa.value / 100, 1 / 4) - 1) * 100;
   } else if (paymentType.value === 'miesieczne') {
-    return (Math.pow(1 + nominalRate / 100, 1 / 12) - 1) * 100;
+    return (Math.pow(1 + stopa.value / 100, 1 / 12) - 1) * 100;
   }
 
-  return nominalRate; // Domyślnie zwróć wartość roczną, jeśli nic nie pasuje
+  return stopa.value; // Domyślnie zwróć wartość roczną, jeśli nic nie pasuje
 });
-  
-  const formatowanaStopa = computed(() => {
-    return przeliczonaStopa.value.toFixed(2) + '%';
-  });
+
+const formatowanaStopa = computed(() => {
+  // Dodaj kontrolę, aby obsłużyć przypadek, gdy przeliczonaStopa nie jest liczbą
+  const stopaDoFormatowania = isNaN(przeliczonaStopa.value) ? 0 : przeliczonaStopa.value;
+  return stopaDoFormatowania.toFixed(2) + '%';
+});
+
   
   const zostalo = computed(() => liczbarat.value - liczbarats.value + liczbaratp.value);
   
   const rata1 = computed(() => {
-    if (kwotaglowna.value === 0 || przeliczonaStopa.value === 0 || lata.value === 0 || liczbarat.value === 0) {
-      return 0;
-    }
-  
-    const formatowana = parseFloat(formatowanaStopa.value) / 100;
-    const nawias = 1 + formatowana;
-    const mianownik = Math.pow(nawias, liczbarat.value);
-    const rata1 = (kwotaglowna.value * formatowana) / (1 - 1 / mianownik);
-  
-    return rata1.toFixed(2);
-  });
-  
-  const pozostaloscKwota = computed(() => {
-    let pozostalaKwota = kwotaglowna.value;
-    for (let i = 1; i <= liczbarats.value; i++) {
-      const czescOdsetkowa = pozostalaKwota * (parseFloat(formatowanaStopa.value) / 100);
-      const czescKapitalowa = rata1.value - czescOdsetkowa;
-      pozostalaKwota -= czescKapitalowa;
-    }
-    return pozostalaKwota.toFixed(2);
-  });
-  
-  const rata2 = computed(() => {
-    if (pozostaloscKwota.value === 0) {
-      return 0;
-    }
-  
-    const formatowana = parseFloat(formatowanaStopa.value) / 100;
-    const nawias = 1 + formatowana;
-    const mianownik = Math.pow(nawias, zostalo.value);
-    const rata2 = (pozostaloscKwota.value * formatowana) / (1 - 1 / mianownik);
-  
-    return rata2.toFixed(2);
-  });
+  if (kwotaglowna.value <= 0 || przeliczonaStopa.value <= 0 || liczbarat.value <= 0) {
+    return 0; // Zabezpieczenie przed nieprawidłowymi wartościami
+  }
+
+  const formatowana = przeliczonaStopa.value / 100;
+  const nawias = 1 + formatowana;
+  const mianownik = Math.pow(nawias, liczbarat.value);
+
+  // Zabezpieczenie przed dzieleniem przez 0
+  if (mianownik <= 1) {
+    return 0;
+  }
+
+  const rata1 = (kwotaglowna.value * formatowana) / (1 - 1 / mianownik);
+  return rata1.toFixed(2);
+});
+
+const rata2 = computed(() => {
+  if (pozostaloscKwota.value <= 0 || przeliczonaStopa.value <= 0 || zostalo.value <= 0) {
+    return 0; // Zabezpieczenie przed nieprawidłowymi wartościami
+  }
+
+  const formatowana = przeliczonaStopa.value / 100;
+  const nawias = 1 + formatowana;
+  const mianownik = Math.pow(nawias, zostalo.value);
+
+  // Zabezpieczenie przed dzieleniem przez 0
+  if (mianownik <= 1) {
+    return 0;
+  }
+
+  const rata2 = (pozostaloscKwota.value * formatowana) / (1 - 1 / mianownik);
+  return rata2.toFixed(2);
+});
+
   
   const raty = ref([]);
   
   const submitForm = () => {
-  if (!kwotaglowna.value || kwotaglowna.value <= 0) return toast.error('Kwota główna jest wymagana i musi być większa od 0.');
-  if (!stopa.value || stopa.value <= 0) return toast.error('Nominalna stopa procentowa jest wymagana i musi być większa od 0.');
-  if (!lata.value || lata.value <= 0) return toast.error('Liczba lat jest wymagana i musi być większa od 0.');
-  if (!latas.value || latas.value <= 0) return toast.error('Liczba lat, po których ma nastąpić wydłużenie spłaty, jest wymagana.');
-  if (!latap.value || latap.value <= 0) return toast.error('Liczba przedłużonych lat musi być większa od 0.');
-  if (latas.value > lata.value) return toast.error('Liczba lat restrukturyzacji musi być mniejsza od całego okresu.');
+  if (!kwotaglowna.value || kwotaglowna.value <= 0) 
+    return toast.error('Kwota główna jest wymagana i musi być większa od 0.');
+  if (!stopa.value || stopa.value <= 0) 
+    return toast.error('Nominalna stopa procentowa jest wymagana i musi być większa od 0.');
+  if (!lata.value || lata.value <= 0) 
+    return toast.error('Liczba lat jest wymagana i musi być większa od 0.');
+  if (!latas.value || latas.value <= 0) 
+    return toast.error('Liczba lat, po których ma nastąpić wydłużenie spłaty, jest wymagana.');
+  if (!latap.value || latap.value <= 0) 
+    return toast.error('Liczba przedłużonych lat musi być większa od 0.');
+  if (latas.value > lata.value) 
+    return toast.error('Liczba lat restrukturyzacji musi być mniejsza od całego okresu.');
 
   raty.value = [];
-  let pozostalaKwota = parseFloat(kwotaglowna.value);
+  let pozostalaKwota = parseFloat(kwotaglowna.value); // Zmienna do iteracji
   let isAfterRestructuring = false;
 
   for (let i = 1; i <= liczbarat.value + liczbaratp.value; i++) {
     // Wybierz właściwą ratę
     const rata = isAfterRestructuring ? parseFloat(rata2.value) : parseFloat(rata1.value);
     const czescOdsetkowa = pozostalaKwota * (parseFloat(przeliczonaStopa.value) / 100);
-    
-    // Główna korekta: Część kapitałowa musi być ograniczona do pozostałej kwoty
+
+    // Część kapitałowa musi być ograniczona do pozostałej kwoty
     const czescKapitalowa = Math.min(rata - czescOdsetkowa, pozostalaKwota);
-    
+
     // Kwota po spłacie musi być większa lub równa 0
     const kwotaPoSplatach = Math.max(0, pozostalaKwota - czescKapitalowa);
 
@@ -225,14 +233,14 @@
     console.log(`Kwota po spłacie: ${kwotaPoSplatach.toFixed(2)}`);
 
     raty.value.push({
-        numer: i,
-        kwotaGlowna: pozostalaKwota.toFixed(2),
-        rata: rata.toFixed(2),
-        czescOdsetkowa: czescOdsetkowa.toFixed(2),
-        czescKapitalowa: czescKapitalowa.toFixed(2),
-        kwotaPoSplatach: kwotaPoSplatach.toFixed(2),
-        restrukturyzacja: i === liczbarats.value + 1,
-        ostatni: i === liczbarat.value + liczbaratp.value
+      numer: i,
+      kwotaGlowna: pozostalaKwota.toFixed(2),
+      rata: rata.toFixed(2),
+      czescOdsetkowa: czescOdsetkowa.toFixed(2),
+      czescKapitalowa: czescKapitalowa.toFixed(2),
+      kwotaPoSplatach: kwotaPoSplatach.toFixed(2),
+      restrukturyzacja: i === liczbarats.value + 1,
+      ostatni: i === liczbarat.value + liczbaratp.value
     });
 
     // Aktualizuj pozostałą kwotę
@@ -240,23 +248,23 @@
 
     // Przełącz na nową ratę po restrukturyzacji
     if (i === liczbarats.value) {
-        isAfterRestructuring = true;
+      isAfterRestructuring = true;
     }
-}
+  }
 
+  console.log('Kwota główna:', kwotaglowna.value);
+  console.log('Nominalna stopa procentowa:', stopa.value);
+  console.log('Formatowana stopa:', formatowanaStopa.value);
+  console.log('Rodzaj rat:', paymentType.value);
+  console.log('Liczba rat:', liczbarat.value);
+  console.log('Liczba rat przedłużonych:', liczbaratp.value);
+  console.log('Liczba rat, po których ma nastąpić zmiana:', liczbarats.value);
+  console.log('Rata przed zmianą:', rata1.value);
+  console.log('Pozostała kwota:', pozostaloscKwota.value); // WAŻNE: .value dla computed!
+  console.log('Rata po zmianie:', rata2.value);
+  console.log('Raty:', raty.value);
+};
 
-    console.log('Kwota główna:', kwotaglowna.value);
-    console.log('Nominalna stopa procentowa:', stopa.value);
-    console.log('Formatowana stopa:', formatowanaStopa.value);
-    console.log('Rodzaj rat:', paymentType.value);
-    console.log('Liczba rat:', liczbarat.value);
-    console.log('Liczba rat przedłużonych:', liczbaratp.value);
-    console.log('Liczba rat, po których ma nastąpić zmiana:', liczbarats.value);
-    console.log('Rata przed zmianą:', rata1.value);
-    console.log('Pozostała kwota:', pozostaloscKwota.value);
-    console.log('Rata po zmianie:', rata2.value);
-    console.log('Raty:', raty.value);
-  };
   
   const chartData = computed(() => {
       return {
