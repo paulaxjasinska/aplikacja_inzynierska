@@ -125,10 +125,10 @@ const props = defineProps(["paymentMethod", "kwotaglowna", "lata", "stopa", "pay
 
 const paymentType = ref(props.paymentType || "roczne");
 const paymentMethod = ref(props.paymentMethod || "rowner");
-const lata = ref(props.lata || 0);
+const lata = ref(+props.lata || 0);
 const lataz = ref(0);
-const kwotaglowna = ref(props.kwotaglowna || 0);
-const stopa1 = ref(props.stopa || 0);
+const kwotaglowna = ref(+props.kwotaglowna || 0);
+const stopa1 = ref(+props.stopa || 0);
 const stopa2 = ref(0);
 const chartType = ref("bar");
 

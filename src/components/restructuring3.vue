@@ -67,7 +67,7 @@
         </thead>
         <tbody>
           <tr
-            v-for="rata in raty"
+            v-for="(rata,index) in raty"
             :key="rata.numer"
             :class="{ 'pause-row': rata.pause, 'additional-row': rata.additional }"
           >
@@ -112,9 +112,9 @@ const props = defineProps(["paymentMethod", "kwotaglowna", "lata", "stopa", "pay
 
 // Reaktywne zmienne dla formularza
 const paymentType = ref(props.paymentType || "roczne");
-const lata = ref(props.lata || 0);
-const kwotaglowna = ref(props.kwotaglowna || 0);
-const stopa = ref(props.stopa || 0);
+const lata = ref(+props.lata || 0);
+const kwotaglowna = ref(+props.kwotaglowna || 0);
+const stopa = ref(+props.stopa || 0);
 const odr = ref(0);
 const dor = ref(0);
 const chartType = ref("bar");

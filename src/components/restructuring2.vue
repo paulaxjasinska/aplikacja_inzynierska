@@ -62,14 +62,14 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="rata in raty" :key="rata.numer" :class="{ 'thick-border': rata.restrukturyzacja }">
+        <tr v-for="(rata,index) in raty" :key="rata.numer" :class="{ 'thick-border': rata.restrukturyzacja }">
           <td>{{ rata.numer }}</td>
           <td>{{ rata.kwotaGlowna }}</td>
           <td>{{ rata.rata }}</td>
           <td>{{ rata.czescOdsetkowa }}</td>
           <td>{{ rata.czescKapitalowa }}</td>
           <td :class="{ 'green-text': rata.ostatni }">
-            {{ rata.kwotaPoSplatach }}
+          {{ index === raty.length - 1 ? '0.00' : rata.kwotaPoSplatach }}
           </td>
         </tr>
       </tbody>
@@ -101,10 +101,10 @@
   const props = defineProps(["paymentMethod","kwotaglowna","lata","stopa","paymentType"])
   const latap = ref(0);
   const latas = ref(0);
-  const paymentType = ref(props.paymentType || "roczne");
-  const lata = ref(props.lata || 0);
-  const kwotaglowna = ref(props.kwotaglowna || 0);
-  const stopa = ref(props.stopa || 0);
+  const paymentType = ref(+props.paymentType || "roczne");
+  const lata = ref(+props.lata || 0);
+  const kwotaglowna = ref(+props.kwotaglowna || 0);
+  const stopa = ref(+props.stopa || 0);
   const chartType = ref("bar");
   
   const liczbarat = computed(() => {
