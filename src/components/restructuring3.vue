@@ -213,8 +213,8 @@ const submitForm = () => {
   rata: rataValue,
   czescOdsetkowa: czescOdsetkowaValue,
   czescKapitalowa: czescKapitalowaValue,
-  kwotaPoSplatach: i === liczbarat.value ? "0,00" : kwotaPoSplatachValue, // Wartość 0,00 dla ostatniej raty
-  ostatni: i === liczbarat.value, // Oznaczenie ostatniego wiersza
+  kwotaPoSplatach: i === liczbarat.value ? "0,00" : kwotaPoSplatachValue,
+  ostatni: i === liczbarat.value, 
   pause: i >= odr.value && i <= dor.value,
   additional: kwotaGlowna === '-'
 });
@@ -226,7 +226,7 @@ const submitForm = () => {
         rata: rataWyliczona.toFixed(2),
         czescOdsetkowa: czescOdsetkowa.toFixed(2),
         czescKapitalowa: czescKapitalowa.toFixed(2),
-        additional: true, // Wskazanie, że jest to dodatkowy wiersz
+        additional: true, 
       });
     }
 
@@ -236,7 +236,7 @@ const submitForm = () => {
   wartosciDoDodania.forEach((rata) => {
     tymczasoweRaty.push({
       ...rata,
-      pause: false, // Wartości te nie będą miały oznaczenia wakacji kredytowych
+      pause: false, 
     });
   });
 

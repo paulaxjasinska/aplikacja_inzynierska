@@ -108,35 +108,39 @@
   const chartType = ref("bar");
   
   const liczbarat = computed(() => {
-    if (paymentType.value === 'kwartalne') {
-      return lata.value * 4;
-    } else if (paymentType.value === 'miesieczne') {
-      return lata.value * 12;
-    }
-    return lata.value;
-  });
-  
-  const liczbaratp = computed(() => {
-    if (paymentType.value === 'kwartalne') {
-      return latap.value * 4;
-    } else if (paymentType.value === 'miesieczne') {
-      return latap.value * 12;
-    }
-    return latap.value;
-  });
-  
-  const liczbarats = computed(() => {
-    if (paymentType.value === 'kwartalne') {
-      return latas.value * 4;
-    } else if (paymentType.value === 'miesieczne') {
-      return latas.value * 12;
-    }
-    return latas.value;
-  });
+  // Liczba pierwotnych rat
+  if (paymentType.value === 'kwartalne') {
+    return lata.value * 4; // Kwartały
+  } else if (paymentType.value === 'miesieczne') {
+    return lata.value * 12; // Miesiące
+  }
+  return lata.value; // Roczne
+});
+
+const liczbaratp = computed(() => {
+  // Liczba dodatkowych rat po przedłużeniu
+  if (paymentType.value === 'kwartalne') {
+    return latap.value * 4; // Kwartały
+  } else if (paymentType.value === 'miesieczne') {
+    return latap.value * 12; // Miesiące
+  }
+  return latap.value; // Roczne
+});
+
+const liczbarats = computed(() => {
+  // Liczba rat do momentu restrukturyzacji
+  if (paymentType.value === 'kwartalne') {
+    return latas.value * 4; // Kwartały
+  } else if (paymentType.value === 'miesieczne') {
+    return latas.value * 12; // Miesiące
+  }
+  return latas.value; // Roczne
+});
+
   
   const przeliczonaStopa = computed(() => {
   if (!stopa.value || stopa.value <= 0) {
-    return 0; // Wartość domyślna, gdy stopa jest nieprawidłowa
+    return 0; // Domyślna wartość, gdy stopa jest nieprawidłowa
   }
 
   if (paymentType.value === 'kwartalne') {
@@ -145,13 +149,12 @@
     return (Math.pow(1 + stopa.value / 100, 1 / 12) - 1) * 100;
   }
 
-  return stopa.value; // Domyślnie zwróć wartość roczną, jeśli nic nie pasuje
+  return stopa.value; // Domyślnie zwróć wartość roczną
 });
 
 const formatowanaStopa = computed(() => {
-  // Dodaj kontrolę, aby obsłużyć przypadek, gdy przeliczonaStopa nie jest liczbą
-  const stopaDoFormatowania = isNaN(przeliczonaStopa.value) ? 0 : przeliczonaStopa.value;
-  return stopaDoFormatowania.toFixed(2) + '%';
+  const stopaDoFormatowania = Number(przeliczonaStopa.value) || 0; // Konwersja na liczbę lub 0
+  return stopaDoFormatowania.toFixed(2) + '%'; // Formatowanie jako liczba
 });
 
   
@@ -174,6 +177,16 @@ const formatowanaStopa = computed(() => {
   const rata1 = (kwotaglowna.value * formatowana) / (1 - 1 / mianownik);
   return rata1.toFixed(2);
 });
+const pozostaloscKwota = computed(() => {
+  let pozostalaKwota = kwotaglowna.value;
+  for (let i = 1; i <= zostalo.value; i++) {
+    const czescOdsetkowa = pozostalaKwota * (parseFloat(formatowanaStopa.value) / 100);
+    const czescKapitalowa = Math.min(parseFloat(rata1.value) - czescOdsetkowa, pozostalaKwota);
+    pozostalaKwota -= czescKapitalowa;
+  }
+  return pozostalaKwota.toFixed(2);
+});
+
 
 const rata2 = computed(() => {
   if (pozostaloscKwota.value <= 0 || przeliczonaStopa.value <= 0 || zostalo.value <= 0) {
@@ -259,8 +272,9 @@ const rata2 = computed(() => {
   console.log('Liczba rat:', liczbarat.value);
   console.log('Liczba rat przedłużonych:', liczbaratp.value);
   console.log('Liczba rat, po których ma nastąpić zmiana:', liczbarats.value);
+  console.log('Wszystkie raty', zostalo.value);
   console.log('Rata przed zmianą:', rata1.value);
-  console.log('Pozostała kwota:', pozostaloscKwota.value); // WAŻNE: .value dla computed!
+  console.log('Pozostała kwota:', pozostaloscKwota.value); 
   console.log('Rata po zmianie:', rata2.value);
   console.log('Raty:', raty.value);
 };
