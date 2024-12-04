@@ -67,7 +67,7 @@
         </thead>
         <tbody>
           <tr
-            v-for="(rata,index) in raty"
+            v-for="rata in raty"
             :key="rata.numer"
             :class="{ 'pause-row': rata.pause, 'additional-row': rata.additional }"
           >
@@ -77,9 +77,9 @@
             <td>{{ rata.czescOdsetkowa }}</td>
             <td>{{ rata.czescKapitalowa }}</td>
             <td 
-        :class="{ 'green-text': index === raty.length - 1 }"
+        :class="{ 'green-text': rata.ostatni}"
       >
-        {{ index === raty.length - 1 ? '0.00' : rata.kwotaPoSplatach }}
+        {{ rata.ostatni ? '0.00' : rata.kwotaPoSplatach }}
       </td>
           </tr>
         </tbody>
